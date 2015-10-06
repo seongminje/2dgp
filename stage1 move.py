@@ -76,6 +76,5 @@ while(characterx<1500 and running):
     frame=(frame+1)%6
     delay(0.05)
 
-
 close_canvas()
 
