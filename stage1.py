@@ -23,7 +23,7 @@ class Background:
         self.image.clip_draw_to_origin(self.slide,0,1600,900,0,0,1600-self.slide,900)
         self.image.clip_draw_to_origin(0,0,self.slide,900,1600-self.slide,0,self.slide,900)
     def update(self):
-        self.slide+=15
+        self.slide+=5
         self.slide%=1600
 
 class Tile:
@@ -68,15 +68,15 @@ class Character:
             self.x+=15
 
     def handle_jump(self):
+        self.y-=(self.jump_frame-3)*15
         self.jump_frame+=1
-        self.y-=(self.jump_frame-4.5)*10
-        if self.jump_frame==8 :
+        if self.jump_frame==7 :
             self.state=self.RUN
             self.run_frame=0
 
     def handle_attack(self):
         self.attack_frame+=1
-        if self.attack_frame==7 :
+        if self.attack_frame==6 :
             self.state=self.RUN
             self.run_frame=0
 
