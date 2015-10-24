@@ -10,8 +10,6 @@ character = None
 tile = None
 monster1 = None
 
-#font = None
-
 class Background:
     image=None
     def __init__(self):
@@ -49,7 +47,7 @@ class Monster1:
         self.image.clip_draw_to_origin(55*self.frame,0,55,43,self.x,self.y,80,60)
     def update(self):
         self.frame=(self.frame+1)%6
-        self.x-=20
+        self.x-=25
         if self.x <0:
             self.x=1600
 
@@ -63,13 +61,14 @@ class Character:
         if self.keycheckdown==True:
             self.y-=10
         if self.keycheckleft==True:
-            self.x-=15
+            self.x-=10
         if self.keycheckright==True:
-            self.x+=15
+            self.x+=10
 
     def handle_jump(self):
-        self.y-=(self.jump_frame-3)*15
+        self.y-=(self.jump_frame-3)*20
         self.jump_frame+=1
+        # delay(0.03)
         if self.jump_frame==7 :
             self.state=self.RUN
             self.run_frame=0
@@ -87,9 +86,6 @@ class Character:
     }
     def update(self):
         self.handle_state[self.state](self)  # if가 없어짐 -> 처리속도,수정이 빠름
-        #self.run_frame = (self.run_frame + 1) % 6
-        #self.jump_frame = (self.jump_frame + 1) % 7
-        #self.attack_frame = (self.attack_frame + 1) % 6
 
     def __init__(self):
         self.x, self.y = 160, 160
@@ -97,11 +93,10 @@ class Character:
         self.run = load_image('resource\\character1run.png')
         self.jump = load_image('resource\\character1jump.png')
         self.attack = load_image('resource\\character1attack.png')
+        self.hpbar=load_image('resource\\hpbar.png')
         self.keycheckup,self.keycheckdown,self.keycheckleft,self.keycheckright=(False,False,False,False)
         self.state=self.RUN
-
-    # run jump attack 각각 handle 만들어줘서 따로 돌게 하자
-
+        self.hp=10
 
     def draw(self):
         if self.state==0:
@@ -110,6 +105,7 @@ class Character:
             self.jump.clip_draw(self.jump_frame*130, 0, 130, 165, self.x, self.y+10)
         elif self.state==2:
             self.attack.clip_draw(self.attack_frame*220, 0, 220, 170, self.x+20, self.y+20)
+        self.hpbar.clip_draw_to_origin(0,0,self.hp*27,15,50,850,self.hp*27,15)
 
 def enter():
     global character1,tile,bg,monster1
@@ -169,7 +165,7 @@ def update():
     tile.update()
     bg.update()
     monster1.update()
-    delay(0.05)
+    delay(0.03)
 
 def draw():
     clear_canvas()
@@ -177,5 +173,6 @@ def draw():
     tile.draw()
     monster1.draw()
     character1.draw()
+
 
     update_canvas()
