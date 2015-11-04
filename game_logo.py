@@ -1,10 +1,10 @@
 from pico2d import *
 
 import game_framework
-import title
+import game_title
 
 
-name = "logo"
+
 image = None
 logo_time = 0.0
 
@@ -22,7 +22,7 @@ def update():
 
     if(logo_time>1.0):
         logo_time=0
-        game_framework.push_state(title)
+        game_framework.push_state(game_title)
         #game_framework.quit()
     delay(0.01)
     logo_time+=0.01

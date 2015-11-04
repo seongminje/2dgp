@@ -1,14 +1,12 @@
 import random
 from pico2d import *
 import game_framework
-import title
+import game_title
 
-name = "stage1"
-
-bg = None
-character = None
+stage1bg = None
+main_character = None
 tile = None
-monster1 = None
+monster_mouse = None
 
 class Background:
     image=None
@@ -35,10 +33,10 @@ class Tile:
         self.slide+=15
         self.slide%=1600
 
-class Monster1:
+class Monster_mouse:
     image=None
     def __init__(self):
-        if Monster1.image == None:
+        if Monster_mouse.image == None:
             self.image=load_image('resource\\monster1move.png')
         self.x=1600
         self.y=95
@@ -108,18 +106,18 @@ class Character:
         self.hpbar.clip_draw_to_origin(0,0,self.hp*27,15,50,850,self.hp*27,15)
 
 def enter():
-    global character1,tile,bg,monster1
-    character1=Character()
+    global main_character,tile,stage1bg,monster_mouse
+    main_character=Character()
     tile=Tile()
-    bg=Background()
-    monster1=Monster1()
+    stage1bg=Background()
+    monster_mouse=Monster_mouse()
 
 def exit():
-    global character1,tile,bg,monster1
-    del(character1)
+    global main_character,tile,stage1bg,monster_mouse
+    del(main_character)
     del(tile)
-    del(bg)
-    del(monster1)
+    del(stage1bg)
+    del(monster_mouse)
 
 def pause():
     pass
@@ -128,51 +126,50 @@ def resume():
     pass
 
 def handle_events():
-    global character1
+    global main_character
     events=get_events()
     for event in events:
         if event.type == SDL_QUIT:
             game_framework.quit()
-        elif event.type == SDL_KEYDOWN and character1.state==character1.RUN:
+        elif event.type == SDL_KEYDOWN and main_character.state==main_character.RUN:
             if event.key == SDLK_UP:
-                character1.keycheckup = True
+                main_character.keycheckup = True
             elif event.key == SDLK_DOWN:
-                character1.keycheckdown = True
+                main_character.keycheckdown = True
             elif event.key == SDLK_LEFT:
-                character1.keycheckleft = True
+                main_character.keycheckleft = True
             elif event.key == SDLK_RIGHT:
-                character1.keycheckright = True
+                main_character.keycheckright = True
             elif event.key == SDLK_z:
-                character1.state=1
-                character1.jump_frame=0
+                main_character.state=1
+                main_character.jump_frame=0
             elif event.key == SDLK_x:
-                character1.state=2
-                character1.attack_frame=0
+                main_character.state=2
+                main_character.attack_frame=0
             elif event.key==SDLK_ESCAPE:
-                game_framework.change_state(title)
+                game_framework.change_state(game_title)
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_UP:
-                character1.keycheckup = False
+                main_character.keycheckup = False
             elif event.key == SDLK_DOWN:
-                character1.keycheckdown = False
+                main_character.keycheckdown = False
             elif event.key == SDLK_LEFT:
-                character1.keycheckleft = False
+                main_character.keycheckleft = False
             elif event.key == SDLK_RIGHT:
-                character1.keycheckright = False
+                main_character.keycheckright = False
 
 def update():
-    character1.update()
+    main_character.update()
     tile.update()
-    bg.update()
-    monster1.update()
+    stage1bg.update()
+    monster_mouse.update()
     delay(0.03)
 
 def draw():
     clear_canvas()
-    bg.draw()
+    stage1bg.draw()
     tile.draw()
-    monster1.draw()
-    character1.draw()
-
+    monster_mouse.draw()
+    main_character.draw()
 
     update_canvas()

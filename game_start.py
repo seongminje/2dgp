@@ -1,5 +1,5 @@
 import game_framework
-import logo
+import game_logo
 
-game_framework.run(logo)
+game_framework.run(game_logo)
 # fill here
