@@ -42,6 +42,7 @@ class Monster_mouse:
             self.image=load_image('resource\\monster1move.png')
         self.x=None
         self.y=None
+        self.cursh=False
         self.frame=random.randint(1,5)
     def draw(self):
         self.image.clip_draw_to_origin(55*self.frame,0,55,43,self.x,self.y,80,60)
@@ -179,11 +180,18 @@ def handle_events():
                 main_character.keycheckright = False
 
 def update():
+    global monster_mouseset,main_character
+    for monster_mouse in monster_mouseset:
+        if main_character.x in range(monster_mouse.x-40, monster_mouse.x+40)and main_character.y in range(monster_mouse.y+35, monster_mouse.y+95) and monster_mouse.cursh==False:
+            main_character.hp-=1
+            monster_mouse.cursh=True
     main_character.update()
     tile.update()
     stage1bg.update()
     for monster_mouse in monster_mouseset:
         monster_mouse.update()
+    if(main_character.hp==0):
+        game_framework.change_state(game_title)
     delay(0.03)
 
 def draw():
