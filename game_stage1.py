@@ -8,6 +8,7 @@ stage1bg = None
 main_character = None
 tile = None
 monster_mouseset = None
+halfframe=0
 
 class Background:
     image=None
@@ -47,8 +48,8 @@ class Monster_mouse:
     def update(self):
         self.frame=(self.frame+1)%6
         self.x-=25
-        if self.x <0:
-            self.x=1600
+        # if self.x <0:
+        #     self.x=1600
 
 class Character:
     RUN,JUMP,ATTACK=0,1,2
@@ -65,12 +66,16 @@ class Character:
             self.x+=10
 
     def handle_jump(self):
-        self.y-=(self.jump_frame-3)*20
-        self.jump_frame+=1
+        global halfframe
+        self.y-=(self.jump_frame-3)*10
+        self.jump_frame+=halfframe
+        halfframe=(halfframe+1)%2
+        # print(self.jump_frame)
         # delay(0.03)
         if self.jump_frame==7 :
             self.state=self.RUN
             self.run_frame=0
+
 
     def handle_attack(self):
         self.attack_frame+=1
