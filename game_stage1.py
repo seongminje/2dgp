@@ -1,4 +1,5 @@
 import random
+import json
 from pico2d import *
 import game_framework
 import game_title
@@ -6,7 +7,7 @@ import game_title
 stage1bg = None
 main_character = None
 tile = None
-monster_mouse = None
+monster_mouseset = None
 
 class Background:
     image=None
@@ -38,9 +39,9 @@ class Monster_mouse:
     def __init__(self):
         if Monster_mouse.image == None:
             self.image=load_image('resource\\monster1move.png')
-        self.x=1600
-        self.y=95
-        self.frame=0
+        self.x=None
+        self.y=None
+        self.frame=random.randint(1,5)
     def draw(self):
         self.image.clip_draw_to_origin(55*self.frame,0,55,43,self.x,self.y,80,60)
     def update(self):
@@ -82,6 +83,7 @@ class Character:
         JUMP : handle_jump,
         ATTACK : handle_attack
     }
+
     def update(self):
         self.handle_state[self.state](self)  # if가 없어짐 -> 처리속도,수정이 빠름
 
@@ -105,19 +107,32 @@ class Character:
             self.attack.clip_draw(self.attack_frame*220, 0, 220, 170, self.x+20, self.y+20)
         self.hpbar.clip_draw_to_origin(0,0,self.hp*27,15,50,850,self.hp*27,15)
 
+def create_monster_mouseset():
+    monster_mouse_data_file= open('resource\\jsons\\monster_mouse_data.txt','r')
+    monster_mouse_data = json.load(monster_mouse_data_file)
+    monster_mouse_data_file.close()
+    monster_mouseset=[]
+    for num in monster_mouse_data:
+        monster_mouse = Monster_mouse()
+        monster_mouse.num = num
+        monster_mouse.x=monster_mouse_data[num]['x']
+        monster_mouse.y=monster_mouse_data[num]['y']
+        monster_mouseset.append(monster_mouse)
+    return monster_mouseset
+
 def enter():
-    global main_character,tile,stage1bg,monster_mouse
+    global main_character,tile,stage1bg,monster_mouseset
     main_character=Character()
     tile=Tile()
     stage1bg=Background()
-    monster_mouse=Monster_mouse()
+    monster_mouseset = create_monster_mouseset()
 
 def exit():
-    global main_character,tile,stage1bg,monster_mouse
+    global main_character,tile,stage1bg,monster_mouseset
     del(main_character)
     del(tile)
     del(stage1bg)
-    del(monster_mouse)
+    del(monster_mouseset)
 
 def pause():
     pass
@@ -162,14 +177,16 @@ def update():
     main_character.update()
     tile.update()
     stage1bg.update()
-    monster_mouse.update()
+    for monster_mouse in monster_mouseset:
+        monster_mouse.update()
     delay(0.03)
 
 def draw():
     clear_canvas()
     stage1bg.draw()
     tile.draw()
-    monster_mouse.draw()
+    for monster_mouse in monster_mouseset:
+        monster_mouse.draw()
     main_character.draw()
 
     update_canvas()
