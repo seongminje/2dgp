@@ -8,7 +8,7 @@ stage1bg = None
 main_character = None
 tile = None
 monster_mouseset = None
-halfframe=0
+monster_wildboar = None
 
 class Background:
     image=None
@@ -42,15 +42,67 @@ class Monster_mouse:
             self.image=load_image('resource\\monster1move.png')
         self.x=None
         self.y=None
-        self.cursh=False
-        self.frame=random.randint(1,5)
+        self.crush=False
+        self.frame=random.randint(0,5)
     def draw(self):
         self.image.clip_draw_to_origin(55*self.frame,0,55,43,self.x,self.y,80,60)
     def update(self):
         self.frame=(self.frame+1)%6
-        self.x-=25
+        self.x-=10
         # if self.x <0:
         #     self.x=1600
+
+class Monster_wildboar:
+    RUN,HIT,DEATH=0,1,2
+
+    def handle_run(self):
+        self.run_frame = (self.run_frame + 1) % 3
+        self.x-=20
+
+    def handle_hit(self):
+        self.hit_frame+=1
+        if self.hit_frame==5 :
+            self.state=self.DEATH
+            self.hit_frame=0
+            self.death_frame=0
+
+
+    def handle_death(self):
+        self.death_frame+=self.halfframe
+        self.halfframe=(self.halfframe+1)%2
+        if self.death_frame==3:
+            self.state=self.RUN
+            self.run_frame=0
+            self.halfframe=0
+
+    handle_state = {
+        RUN : handle_run,
+        HIT : handle_hit,
+        DEATH : handle_death
+    }
+
+    def __init__(self):
+        self.x=800
+        self.y=95
+        self.run_frame,self.hit_frame,self.death_frame = (0,0,0)
+        self.run = load_image('resource\\monster2move.png')
+        self.hit = load_image('resource\\monster2hit.png')
+        self.death = load_image('resource\\monster2death.png')
+        self.crush=False
+        self.halfframe=0;
+        self.state=self.RUN
+
+    def draw(self):
+        if self.state==0:
+            self.run.clip_draw_to_origin(73*self.run_frame,0,73,52,self.x,self.y,100,80)
+        elif self.state==1:
+            self.hit.clip_draw_to_origin(0,0,73,52,self.x,self.y,100,80)
+        elif self.state==2:
+            self.death.clip_draw_to_origin(75*self.death_frame%2,0,75,46,self.x,self.y,100,80)
+
+    def update(self):
+        self.handle_state[self.state](self)
+
 
 class Character:
     RUN,JUMP,ATTACK=0,1,2
@@ -67,22 +119,22 @@ class Character:
             self.x+=10
 
     def handle_jump(self):
-        global halfframe
         self.y-=(self.jump_frame-3)*10
-        self.jump_frame+=halfframe
-        halfframe=(halfframe+1)%2
-        # print(self.jump_frame)
-        # delay(0.03)
+        self.jump_frame+=self.halfframe
+        self.halfframe=(self.halfframe+1)%2
         if self.jump_frame==7 :
             self.state=self.RUN
             self.run_frame=0
+            self.halfframe=0
 
 
     def handle_attack(self):
-        self.attack_frame+=1
+        self.attack_frame+=self.halfframe
+        self.halfframe=(self.halfframe+1)%2
         if self.attack_frame==6 :
             self.state=self.RUN
             self.run_frame=0
+            self.halfframe=0
 
     handle_state = {
         RUN : handle_run,
@@ -103,6 +155,7 @@ class Character:
         self.keycheckup,self.keycheckdown,self.keycheckleft,self.keycheckright=(False,False,False,False)
         self.state=self.RUN
         self.hp=10
+        self.halfframe=0;
 
     def draw(self):
         if self.state==0:
@@ -114,7 +167,7 @@ class Character:
         self.hpbar.clip_draw_to_origin(0,0,self.hp*27,15,50,850,self.hp*27,15)
 
 def create_monster_mouseset():
-    monster_mouse_data_file= open('resource\\jsons\\monster_mouse_data.txt','r')
+    monster_mouse_data_file= open('resource\\jsons\\stage1_monster_mouse_data.txt','r')
     monster_mouse_data = json.load(monster_mouse_data_file)
     monster_mouse_data_file.close()
     monster_mouseset=[]
@@ -127,18 +180,20 @@ def create_monster_mouseset():
     return monster_mouseset
 
 def enter():
-    global main_character,tile,stage1bg,monster_mouseset
+    global main_character,tile,stage1bg,monster_mouseset,monster_wildboar
     main_character=Character()
     tile=Tile()
     stage1bg=Background()
     monster_mouseset = create_monster_mouseset()
+    monster_wildboar = Monster_wildboar()
 
 def exit():
-    global main_character,tile,stage1bg,monster_mouseset
+    global main_character,tile,stage1bg,monster_mouseset,monster_wildboar
     del(main_character)
     del(tile)
     del(stage1bg)
     del(monster_mouseset)
+    del(monster_wildboar)
 
 def pause():
     pass
@@ -180,18 +235,26 @@ def handle_events():
                 main_character.keycheckright = False
 
 def update():
-    global monster_mouseset,main_character
-    for monster_mouse in monster_mouseset:
-        if main_character.x in range(monster_mouse.x-40, monster_mouse.x+40)and main_character.y in range(monster_mouse.y+35, monster_mouse.y+95) and monster_mouse.cursh==False:
-            main_character.hp-=1
-            monster_mouse.cursh=True
+    global monster_mouseset,main_character,monster_wildboar
     main_character.update()
+    for monster_mouse in monster_mouseset:
+        if main_character.x in range(monster_mouse.x, monster_mouse.x+80) and main_character.y-65 in range(monster_mouse.y-30, monster_mouse.y+50) and monster_mouse.crush==False:
+            main_character.hp-=1
+            monster_mouse.crush=True
+    if main_character.state==main_character.ATTACK and main_character.x+90 in range(monster_wildboar.x-20,monster_wildboar.x+40):
+        monster_wildboar.state=monster_wildboar.HIT
+        monster_wildboar.crush=True
+    elif main_character.x in range(monster_wildboar.x-30,monster_wildboar.x+20) and monster_wildboar.crush==False:
+        main_character.hp-=1
+        monster_wildboar.crush=True
     tile.update()
     stage1bg.update()
     for monster_mouse in monster_mouseset:
         monster_mouse.update()
+    monster_wildboar.update()
     if(main_character.hp==0):
         game_framework.change_state(game_title)
+
     delay(0.03)
 
 def draw():
@@ -201,5 +264,5 @@ def draw():
     for monster_mouse in monster_mouseset:
         monster_mouse.draw()
     main_character.draw()
-
+    monster_wildboar.draw()
     update_canvas()
