@@ -8,7 +8,7 @@ titlebg = None
 firstsubject = None
 middlesubject = None
 lastsubject = None
-title_time = 0.0
+
 firstsubjectx,firstsubjecty = -200,350
 middlesubjectx,middlesubjecty = 550,900
 lastsubjectx,lastsubjecty = 1600,350
@@ -19,7 +19,10 @@ explain = None #헬프 마우스 온 됫을때 띄우는 로고 아직 미완성
 
 startmouseon,helpmouseon,exitmouseon=False,False,False
 starty,helpy,exity=900,900,900
+
 mousex,mousey=None,None
+
+title_time = 0.0
 
 def enter():
     global titlebg,firstsubject,middlesubject,lastsubject,basicstart,shadowstart,basichelp,shadowhelp,basicexit,shadowexit,explain
@@ -112,6 +115,7 @@ def update():
 
     if(title_time<0.45):
         firstsubjectx=firstsubjectx+10
+        # firstsubjectx+=firstsubjectx_speed_pps*frame_time
     elif(title_time>=0.45 and title_time<1.00):
         middlesubjecty=middlesubjecty-10
     elif(title_time>=1.00 and title_time<1.52):
@@ -145,9 +149,5 @@ def pause():
 def resume():
 
     pass
-
-
-
-
 
 
