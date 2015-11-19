@@ -10,6 +10,7 @@ main_character = None
 tile = None
 monster_mouseset = None
 monster_wildboar = None
+current_time= get_time()
 
 def create_monster_mouseset():
     monster_mouse_data_file= open('resource\\jsons\\stage1_monster_mouse_data.txt','r')
@@ -25,12 +26,13 @@ def create_monster_mouseset():
     return monster_mouseset
 
 def enter():
-    global main_character,tile,stage1bg,monster_mouseset,monster_wildboar
+    global main_character,tile,stage1bg,monster_mouseset,monster_wildboar,current_time
     main_character=Character()
     tile=Tile()
     stage1bg=Background()
     monster_mouseset = create_monster_mouseset()
     monster_wildboar = Monster_wildboar()
+    current_time = get_time()
 
 def exit():
     global main_character,tile,stage1bg,monster_mouseset,monster_wildboar
@@ -64,9 +66,11 @@ def handle_events():
             elif event.key == SDLK_z:
                 main_character.state=1
                 main_character.jump_frame=0
+                main_character.total_frames=0
             elif event.key == SDLK_x:
                 main_character.state=2
                 main_character.attack_frame=0
+                main_character.total_frames=0
             elif event.key==SDLK_ESCAPE:
                 game_framework.change_state(game_title)
         elif event.type == SDL_KEYUP:
@@ -80,23 +84,29 @@ def handle_events():
                 main_character.keycheckright = False
 
 def update():
-    global monster_mouseset,main_character,monster_wildboar
-    main_character.update()
+    global monster_mouseset,main_character,monster_wildboar,current_time,frame_time
+    frame_time = get_time() - current_time
+    #frame_rate = 1.0/frame_time
+    #print("Frame Rage : %f fps, Frame time : %f sec, "%(frame_rate,frame_time))
+    current_time +=frame_time
+
+    main_character.update(frame_time)
     for monster_mouse in monster_mouseset:
         if main_character.x in range(monster_mouse.x, monster_mouse.x+80) and main_character.y-65 in range(monster_mouse.y-30, monster_mouse.y+50) and monster_mouse.crush==False:
             main_character.hp-=1
             monster_mouse.crush=True
     if main_character.state==main_character.ATTACK and main_character.x+90 in range(monster_wildboar.x-20,monster_wildboar.x+40):
         monster_wildboar.state=monster_wildboar.HIT
+        monster_wildboar.total_frames=0.0
         monster_wildboar.crush=True
     elif main_character.x in range(monster_wildboar.x-30,monster_wildboar.x+20) and monster_wildboar.crush==False:
         main_character.hp-=1
         monster_wildboar.crush=True
-    tile.update()
-    stage1bg.update()
+    tile.update(frame_time)
+    stage1bg.update(frame_time)
     for monster_mouse in monster_mouseset:
-        monster_mouse.update()
-    monster_wildboar.update()
+        monster_mouse.update(frame_time)
+    monster_wildboar.update(frame_time)
     if(main_character.hp==0):
         game_framework.change_state(game_title)
 
