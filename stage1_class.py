@@ -45,7 +45,7 @@ class Tile:
 class Monster_mouse:
     image=None
     PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
-    RUN_SPEED_KMPH = 15.0           # KM / HOUR
+    RUN_SPEED_KMPH = 10.0           # KM / HOUR
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0/60.0)
     RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
@@ -62,20 +62,21 @@ class Monster_mouse:
         self.total_frames=0.0
         self.frame=random.randint(0,5)
     def draw(self):
-        self.image.clip_draw_to_origin(55*self.frame,0,55,43,self.x,self.y,60,40)
+        self.image.clip_draw_to_origin(55*self.frame,0,55,43,self.x,self.y,80,60)
     def update(self,frame_time):
         distance=self.RUN_SPEED_PPS*frame_time
         self.total_frames+=self.FRAMES_PER_ACTION * self.ACTION_PER_TIME*frame_time
         self.frame=int((self.total_frames)%6)
-        # print(self.frame)
         self.x-=int(distance)
-        # if self.x <0:
-        #     self.x=1600
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+    def get_bb(self):
+        return self.x , self.y , self.x + 80, self.y + 60
 
 class Monster_wildboar:
     RUN,HIT,DEATH=0,1,2
     PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
-    RUN_SPEED_KMPH = 15.0           # KM / HOUR
+    RUN_SPEED_KMPH = 10.0           # KM / HOUR
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0/60.0)
     RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
@@ -88,12 +89,9 @@ class Monster_wildboar:
     def handle_run(self,frame_time):
         distance=self.RUN_SPEED_PPS*frame_time
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME*frame_time
-        # self.run_frame=(self.run_frame+1)%3
         self.run_frame=int(self.total_frames)%3
         # print(self.run_frame)
         self.x-=int(distance)
-        # self.run_frame = (self.run_frame + 1) % 3
-        # self.x-=20
 
     def handle_hit(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_HIT*self.ACTION_PER_TIME*frame_time
@@ -108,10 +106,8 @@ class Monster_wildboar:
     def handle_death(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_DEATH*self.ACTION_PER_TIME*frame_time
         self.death_frame=int(self.total_frames)
-        ###############################
         if self.death_frame==3:
             self.state=self.RUN
-            #################### .remove()
             self.run_frame=0
             self.death_frame=0
 
@@ -122,8 +118,8 @@ class Monster_wildboar:
     }
 
     def __init__(self):
-        self.x=800
-        self.y=95
+        self.x=None
+        self.y=None
         self.run_frame,self.hit_frame,self.death_frame = (0,0,0)
         self.run = load_image('resource\\monster2move.png')
         self.hit = load_image('resource\\monster2hit.png')
@@ -133,15 +129,18 @@ class Monster_wildboar:
         self.total_frames=0.0
     def draw(self):
         if self.state==0:
-            self.run.clip_draw_to_origin(73*self.run_frame,0,73,52,self.x,self.y,100,80)
+            self.run.clip_draw_to_origin(73*self.run_frame,0,73,52,self.x,self.y,120,100)
         elif self.state==1:
-            self.hit.clip_draw_to_origin(0,0,73,52,self.x,self.y,100,80)
+            self.hit.clip_draw_to_origin(0,0,73,52,self.x,self.y,120,100)
         elif self.state==2:
-            self.death.clip_draw_to_origin(75*self.death_frame%2,0,75,46,self.x,self.y,100,80)
+            self.death.clip_draw_to_origin(75*self.death_frame%2,0,75,46,self.x,self.y,120,100)
 
     def update(self,frame_time):
         self.handle_state[self.state](self,frame_time)
-
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+    def get_bb(self):
+        return self.x , self.y , self.x + 120, self.y + 100
 
 class Character:
     RUN,JUMP,ATTACK=0,1,2
@@ -181,7 +180,7 @@ class Character:
         if self.jump_frame>=7 :
             self.state=self.RUN
             self.run_frame=0
-            # self.y=160
+            self.y=160
 
     def handle_attack(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_ATTACK*self.ACTION_PER_TIME_ATTACK*frame_time
@@ -212,10 +211,25 @@ class Character:
         self.total_frames=0.0
 
     def draw(self):
-        if self.state==0:
+        if self.state==self.RUN:
             self.run.clip_draw(self.run_frame*160, 0, 160, 135, self.x, self.y)
-        elif self.state==1:
+        elif self.state==self.JUMP:
             self.jump.clip_draw(self.jump_frame*130, 0, 130, 165, self.x, self.y+10)
-        elif self.state==2:
+        elif self.state==self.ATTACK:
             self.attack.clip_draw(self.attack_frame*220, 0, 220, 170, self.x+20, self.y+20)
         self.hpbar.clip_draw_to_origin(0,0,self.hp*27,15,50,850,self.hp*27,15)
+
+    def draw_bb_body(self):
+        draw_rectangle(*self.get_bb_body())
+    def draw_bb_weapon(self):
+        draw_rectangle(*self.get_bb_weapon())
+    def get_bb_body(self):
+        if(self.state==self.RUN):
+            return self.x-80 , self.y-65 , self.x , self.y
+        elif(self.state==self.JUMP):
+            return self.x-70 , self.y-70 , self.x+20 , self.y
+        elif(self.state==self.ATTACK):
+            return self.x-80 , self.y-65 , self.x , self.y
+    def get_bb_weapon(self):
+        if(self.state==self.ATTACK):
+            return self.x+70 , self.y-50 , self.x+140 , self.y+20
