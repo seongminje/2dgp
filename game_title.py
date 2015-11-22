@@ -1,7 +1,7 @@
 from pico2d import *
 
 import game_framework
-import game_stage2
+import game_stage1
 
 
 titlebg = None
@@ -19,13 +19,15 @@ explain = None #헬프 마우스 온 됫을때 띄우는 로고 아직 미완성
 
 startmouseon,helpmouseon,exitmouseon=False,False,False
 starty,helpy,exity=900,900,900
-
 mousex,mousey=None,None
-
 title_time = 0.0
+title_bgm=None
+title_etc_mouseon=None
+
 
 def enter():
     global titlebg,firstsubject,middlesubject,lastsubject,basicstart,shadowstart,basichelp,shadowhelp,basicexit,shadowexit,explain
+    global title_bgm,title_etc_mouseon
     titlebg = load_image('resource//titlebg.png')
     firstsubject = load_image('resource//name1.png')
     middlesubject = load_image('resource//name2.png')
@@ -37,9 +39,15 @@ def enter():
     basicexit=load_image('resource//exit1.png')
     shadowexit=load_image('resource//exit2.png')
     explain=load_image('resource//BG1.png')
+    title_bgm=load_music('resource//sound//bgm_title.ogg')
+    title_etc_mouseon=load_wav('resource//sound//etc_title_mouseon.wav')
+    title_bgm.set_volume(56)
+    title_bgm.repeat_play()
+    title_etc_mouseon.set_volume(32)
 
 def exit():
     global titlebg,firstsubject,middlesubject,lastsubject,basicstart,shadowstart,basichelp,shadowhelp,basicexit,shadowexit,explain
+    global title_bgm,title_etc_mouseon
     del(titlebg)
     del(firstsubject)
     del(middlesubject)
@@ -51,9 +59,12 @@ def exit():
     del(basicexit)
     del(shadowexit)
     del(explain)
+    del(title_bgm)
+    del(title_etc_mouseon)
 
 def handle_events():
     global mousex,mousey,startmouseon,helpmouseon,exitmouseon,starty,helpy,exity,title_time,firstsubjectx,middlesubjecty,lastsubjectx
+    global title_bgm,title_etc_mouseon
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -65,18 +76,21 @@ def handle_events():
                 mousex,mousey=event.x, 900-event.y
                 if(mousex>=1260 and mousex<=1500 and mousey>=starty and mousey<=starty+80):
                     startmouseon=True
+                    title_etc_mouseon.play(1)
                 else:
                     startmouseon=False
                 if(mousex>=1320 and mousex<=1500 and mousey>=helpy and mousey<=helpy+80):
                     helpmouseon=True
+                    title_etc_mouseon.play(1)
                 else:
                     helpmouseon=False
                 if(mousex>=1320 and mousex<=1500 and mousey>=exity and mousey<=exity+80):
                     exitmouseon=True
+                    title_etc_mouseon.play(1)
                 else:
                     exitmouseon=False
             if event.type == SDL_MOUSEBUTTONDOWN and startmouseon==True:
-                game_framework.change_state(game_stage2)
+                game_framework.change_state(game_stage1)
             elif event.type == SDL_MOUSEBUTTONDOWN and exitmouseon==True:
                 game_framework.quit()
             elif event.type == SDL_MOUSEBUTTONDOWN and startmouseon==False and exitmouseon==False:

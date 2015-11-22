@@ -4,6 +4,14 @@ import json
 from pico2d import *
 from game_stage1 import  *
 
+class Minimap:
+    image=None
+    def __init__(self):
+        if Minimap.image == None:
+            Minimap.image = load_image('resource\\stage1_minimap.png')
+    def draw(self):
+        self.image.clip_draw_to_origin(0,0,1000,60,300,700,1000,60)
+
 class Background:
     image=None
     PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
@@ -31,6 +39,7 @@ class Tile:
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0/60.0)
     RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+    minimap_scroll=0.0
     def __init__(self):
         self.image = load_image('resource\\tileblock.png')
         self.slide=0
@@ -40,12 +49,14 @@ class Tile:
     def update(self,frame_time):
         distance=self.RUN_SPEED_PPS*frame_time
         self.slide+=int(distance)
+        self.minimap_scroll+=distance
+        # print(self.minimap_scroll)
         self.slide%=1600
 
 class Monster_mouse:
     image=None
     PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
-    RUN_SPEED_KMPH = 10.0           # KM / HOUR
+    RUN_SPEED_KMPH = 20.0           # KM / HOUR
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0/60.0)
     RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
@@ -76,7 +87,7 @@ class Monster_mouse:
 class Monster_wildboar:
     RUN,HIT,DEATH=0,1,2
     PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
-    RUN_SPEED_KMPH = 10.0           # KM / HOUR
+    RUN_SPEED_KMPH = 20.0           # KM / HOUR
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0/60.0)
     RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
@@ -106,10 +117,9 @@ class Monster_wildboar:
     def handle_death(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_DEATH*self.ACTION_PER_TIME*frame_time
         self.death_frame=int(self.total_frames)
-        if self.death_frame==3:
-            self.state=self.RUN
-            self.run_frame=0
-            self.death_frame=0
+
+    def return_death_frame(self):
+        return self.death_frame
 
     handle_state = {
         RUN : handle_run,
@@ -143,6 +153,7 @@ class Monster_wildboar:
         return self.x , self.y , self.x + 120, self.y + 100
 
 class Character:
+    global tile
     RUN,JUMP,ATTACK=0,1,2
     PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
     JUMP_SPEED_MPS = 23   # M / SEC
@@ -158,7 +169,12 @@ class Character:
     FRAMES_PER_ACTION_RUN = 6
     FRAMES_PER_ACTION_JUMP = 7
     FRAMES_PER_ACTION_ATTACK = 6
-    #s=v0t + 1/2a t^2
+
+    run_sound=None
+    jump_sound=None
+    attack_sound=None
+    hp_sound=None
+
     def handle_run(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME_RUN*frame_time
         self.run_frame=int(self.total_frames)%6
@@ -171,16 +187,20 @@ class Character:
             self.x-=10
         if self.keycheckright==True:
             self.x+=10
+    def play_run_sound(self):
+        self.run_sound.play()
 
     def handle_jump(self,frame_time):
         self.y+=self.JUMP_SPEED_MPS-self.GRAVITY/2*(2*self.jump_frame-1)
-        print(self.jump_frame,self.y)
         self.total_frames+=self.FRAMES_PER_ACTION_JUMP*self.ACTION_PER_TIME_JUMP*frame_time
         self.jump_frame=int(self.total_frames)
         if self.jump_frame>=7 :
             self.state=self.RUN
             self.run_frame=0
             self.y=160
+            self.run_sound.play()
+    def play_jump_sound(self):
+        self.jump_sound.play()
 
     def handle_attack(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_ATTACK*self.ACTION_PER_TIME_ATTACK*frame_time
@@ -188,6 +208,7 @@ class Character:
         if self.attack_frame==6 :
             self.state=self.RUN
             self.run_frame=0
+            # self.run_sound.play()
 
     handle_state = {
         RUN : handle_run,
@@ -209,6 +230,18 @@ class Character:
         self.state=self.RUN
         self.hp=10
         self.total_frames=0.0
+        if Character.run_sound==None:
+            Character.run_sound = load_wav('resource//sound//etc_character_run.wav')
+            Character.run_sound.set_volume(32)
+        if Character.jump_sound==None:
+            Character.jump_sound = load_wav('resource//sound//etc_character_jump.wav')
+            Character.jump_sound.set_volume(32)
+        if Character.attack_sound==None:
+            Character.attack_sound = load_wav('resource//sound//etc_character_attack.wav')
+            Character.attack_sound.set_volume(32)
+        if Character.hp_sound==None:
+            Character.hp_sound = load_wav('resource//sound//etc_character_hp.wav')
+            Character.hp_sound.set_volume(32)
 
     def draw(self):
         if self.state==self.RUN:
@@ -219,6 +252,8 @@ class Character:
             self.attack.clip_draw(self.attack_frame*220, 0, 220, 170, self.x+20, self.y+20)
         self.hpbar.clip_draw_to_origin(0,0,self.hp*27,15,50,850,self.hp*27,15)
 
+    def draw_minimap_character(self,tile):
+        self.run.clip_draw_to_origin(int(self.total_frames%6)*160, 0, 160, 135,300+tile.minimap_scroll/17.5,717, 40, 40)
     def draw_bb_body(self):
         draw_rectangle(*self.get_bb_body())
     def draw_bb_weapon(self):

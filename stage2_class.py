@@ -3,6 +3,16 @@ import random
 import json
 from pico2d import *
 from game_stage2 import *
+import game_stage1
+received_hp = 0
+
+class Minimap:
+    image=None
+    def __init__(self):
+        if Minimap.image == None:
+            Minimap.image = load_image('resource\\stage2_minimap.png')
+    def draw(self):
+        self.image.clip_draw_to_origin(0,0,1000,60,300,700,1000,60)
 
 class Background:
     image=None
@@ -31,18 +41,20 @@ class Tile:
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0/60.0)
     RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+    minimap_scroll=0.0
     def __init__(self):
         self.image = load_image('resource\\tileblock_stage2.png')
         self.slide=0
     def draw(self):
-        self.image.clip_draw_to_origin(self.slide,0,1600,100,0,400,1600-self.slide,100)
-        self.image.clip_draw_to_origin(0,0,self.slide,100,1600-self.slide,400,self.slide,100)
+        self.image.clip_draw_to_origin(self.slide,0,1600,100,0,300,1600-self.slide,100)
+        self.image.clip_draw_to_origin(0,0,self.slide,100,1600-self.slide,300,self.slide,100)
     def update(self,frame_time):
         distance=self.RUN_SPEED_PPS*frame_time
         self.slide+=int(distance)
+        self.minimap_scroll+=distance
         self.slide%=1600
 
-class Monster_mouse:
+class Monster_mouse_upside:
     image=None
     PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
     RUN_SPEED_KMPH = 20.0           # KM / HOUR
@@ -54,7 +66,7 @@ class Monster_mouse:
     ACTION_PER_TIME = 1.0/TIME_PER_ACTION
     FRAMES_PER_ACTION = 6
     def __init__(self):
-        if Monster_mouse.image == None:
+        if Monster_mouse_upside.image == None:
             self.image=load_image('resource\\monster1move.png')
         self.x=None
         self.y=None
@@ -73,7 +85,38 @@ class Monster_mouse:
     def get_bb(self):
         return self.x , self.y , self.x + 80, self.y + 60
 
-class Monster_wildboar:
+class Monster_mouse_downside:
+    image=None
+    PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
+    RUN_SPEED_KMPH = 20.0           # KM / HOUR
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0/60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+    TIME_PER_ACTION = 1.0
+    ACTION_PER_TIME = 1.0/TIME_PER_ACTION
+    FRAMES_PER_ACTION = 6
+    def __init__(self):
+        if Monster_mouse_downside.image == None:
+            self.image=load_image('resource\\monster1move_reverse.png')
+        self.x=None
+        self.y=None
+        self.crush=False
+        self.total_frames=0.0
+        self.frame=random.randint(0,5)
+    def draw(self):
+        self.image.clip_draw_to_origin(55*self.frame,0,55,43,self.x,self.y,80,60)
+    def update(self,frame_time):
+        distance=self.RUN_SPEED_PPS*frame_time
+        self.total_frames+=self.FRAMES_PER_ACTION * self.ACTION_PER_TIME*frame_time
+        self.frame=int((self.total_frames)%6)
+        self.x-=int(distance)
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+    def get_bb(self):
+        return self.x , self.y , self.x + 80, self.y + 60
+
+class Monster_wildboar_upside:
     RUN,HIT,DEATH=0,1,2
     PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
     RUN_SPEED_KMPH = 20.0           # KM / HOUR
@@ -106,10 +149,6 @@ class Monster_wildboar:
     def handle_death(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_DEATH*self.ACTION_PER_TIME*frame_time
         self.death_frame=int(self.total_frames)
-        # if self.death_frame==3:
-        #     self.state=self.RUN
-        #     self.run_frame=0
-
 
     def return_death_frame(self):
         return self.death_frame
@@ -145,7 +184,238 @@ class Monster_wildboar:
     def get_bb(self):
         return self.x , self.y , self.x + 120, self.y + 100
 
+class Monster_wildboar_downside:
+    RUN,HIT,DEATH=0,1,2
+    PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
+    RUN_SPEED_KMPH = 20.0           # KM / HOUR
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0/60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+    TIME_PER_ACTION = 0.5
+    ACTION_PER_TIME = 1.0/TIME_PER_ACTION
+    FRAMES_PER_ACTION_RUN = 3
+    FRAMES_PER_ACTION_HIT = 5
+    FRAMES_PER_ACTION_DEATH = 3
+    def handle_run(self,frame_time):
+        distance=self.RUN_SPEED_PPS*frame_time
+        self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME*frame_time
+        self.run_frame=int(self.total_frames)%3
+        # print(self.run_frame)
+        self.x-=int(distance)
+
+    def handle_hit(self,frame_time):
+        self.total_frames+=self.FRAMES_PER_ACTION_HIT*self.ACTION_PER_TIME*frame_time
+        self.hit_frame=int(self.total_frames)
+        if self.hit_frame==2 :
+            self.state=self.DEATH
+            self.hit_frame=0
+            self.total_frames=0
+            self.death_frame=0
+
+    def handle_death(self,frame_time):
+        self.total_frames+=self.FRAMES_PER_ACTION_DEATH*self.ACTION_PER_TIME*frame_time
+        self.death_frame=int(self.total_frames)
+
+    def return_death_frame(self):
+        return self.death_frame
+
+    handle_state = {
+        RUN : handle_run,
+        HIT : handle_hit,
+        DEATH : handle_death
+    }
+
+    def __init__(self):
+        self.x=None
+        self.y=None
+        self.run_frame,self.hit_frame,self.death_frame = (0,0,0)
+        self.run = load_image('resource\\monster2move_reverse.png')
+        self.hit = load_image('resource\\monster2hit_reverse.png')
+        self.death = load_image('resource\\monster2death_reverse.png')
+        self.crush=False
+        self.state=self.RUN
+        self.total_frames=0.0
+    def draw(self):
+        if self.state==0:
+            self.run.clip_draw_to_origin(73*self.run_frame,0,73,52,self.x,self.y,120,100)
+        elif self.state==1:
+            self.hit.clip_draw_to_origin(0,0,73,52,self.x,self.y,120,100)
+        elif self.state==2:
+            self.death.clip_draw_to_origin(75*self.death_frame%2,0,75,46,self.x,self.y,120,100)
+
+    def update(self,frame_time):
+        self.handle_state[self.state](self,frame_time)
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+    def get_bb(self):
+        return self.x , self.y , self.x + 120, self.y + 100
+
+
+class Monster_ironboar_upside:
+    RUN,HIT,DEATH=0,1,2
+    PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
+    RUN_SPEED_KMPH = 20.0           # KM / HOUR
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0/60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+    RUN_KNOCKBACK_KMPH = 60.0
+    RUN_KNOCKBACK_MPM =  (RUN_KNOCKBACK_KMPH * 1000.0/60.0)
+    RUN_KNOCKBACK_MPS = RUN_KNOCKBACK_MPM/60.0
+    RUN_KNOCKBACK_PPS = (RUN_KNOCKBACK_MPS * PIXEL_PER_METER)
+
+    TIME_PER_ACTION = 0.5
+    ACTION_PER_TIME = 1.0/TIME_PER_ACTION
+    FRAMES_PER_ACTION_RUN = 2
+    FRAMES_PER_ACTION_HIT = 5
+    FRAMES_PER_ACTION_DEATH = 4
+    def handle_run(self,frame_time):
+        distance=self.RUN_SPEED_PPS*frame_time
+        self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME*frame_time
+        self.run_frame=int(self.total_frames)%2
+        self.x-=int(distance)
+
+    def handle_hit(self,frame_time):
+        self.total_frames+=self.FRAMES_PER_ACTION_HIT*self.ACTION_PER_TIME*frame_time
+        distance=self.RUN_KNOCKBACK_PPS*frame_time
+        self.hit_frame=int(self.total_frames)
+        if self.hp==1:
+            self.x+=int(distance/(self.hit_frame+1))
+        if self.hit_frame==2  and self.hp==0:
+            self.state=self.DEATH
+            self.hit_frame=0
+            self.total_frames=0
+            self.death_frame=0
+        elif self.hit_frame==3 and self.hp==1:
+            self.state=self.RUN
+            self.run_frame=0
+            self.total_frames=0
+            self.hit_frame=0
+
+    def handle_death(self,frame_time):
+        self.total_frames+=self.FRAMES_PER_ACTION_DEATH*self.ACTION_PER_TIME*frame_time
+        self.death_frame=int(self.total_frames)
+
+    def return_death_frame(self):
+        return self.death_frame
+
+    handle_state = {
+        RUN : handle_run,
+        HIT : handle_hit,
+        DEATH : handle_death
+    }
+
+    def __init__(self):
+        self.x=800
+        self.y=495
+        self.run_frame,self.hit_frame,self.death_frame = (0,0,0)
+        self.run = load_image('resource\\monster3move.png')
+        self.hit = load_image('resource\\monster3hit.png')
+        self.death = load_image('resource\\monster3death.png')
+        self.crush=False
+        self.hp=2
+        self.state=self.RUN
+        self.total_frames=0.0
+    def draw(self):
+        if self.state==0:
+            self.run.clip_draw_to_origin(70*self.run_frame,0,70,65,self.x,self.y,120,100)
+        elif self.state==1:
+            self.hit.clip_draw_to_origin(0,0,75,68,self.x,self.y,120,100)
+        elif self.state==2:
+            self.death.clip_draw_to_origin(70*self.death_frame%2,0,70,63,self.x,self.y,120,100)
+
+    def update(self,frame_time):
+        self.handle_state[self.state](self,frame_time)
+
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+    def get_bb(self):
+        return self.x , self.y , self.x + 120, self.y + 100
+
+class Monster_ironboar_downside:
+    RUN,HIT,DEATH=0,1,2
+    PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
+    RUN_SPEED_KMPH = 20.0           # KM / HOUR
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0/60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+    RUN_KNOCKBACK_KMPH = 60.0
+    RUN_KNOCKBACK_MPM =  (RUN_KNOCKBACK_KMPH * 1000.0/60.0)
+    RUN_KNOCKBACK_MPS = RUN_KNOCKBACK_MPM/60.0
+    RUN_KNOCKBACK_PPS = (RUN_KNOCKBACK_MPS * PIXEL_PER_METER)
+
+    TIME_PER_ACTION = 0.5
+    ACTION_PER_TIME = 1.0/TIME_PER_ACTION
+    FRAMES_PER_ACTION_RUN = 2
+    FRAMES_PER_ACTION_HIT = 5
+    FRAMES_PER_ACTION_DEATH = 4
+    def handle_run(self,frame_time):
+        distance=self.RUN_SPEED_PPS*frame_time
+        self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME*frame_time
+        self.run_frame=int(self.total_frames)%2
+        self.x-=int(distance)
+
+    def handle_hit(self,frame_time):
+        self.total_frames+=self.FRAMES_PER_ACTION_HIT*self.ACTION_PER_TIME*frame_time
+        distance=self.RUN_KNOCKBACK_PPS*frame_time
+        self.hit_frame=int(self.total_frames)
+        if self.hp==1:
+            self.x+=int(distance/(self.hit_frame+1))
+        if self.hit_frame==2  and self.hp==0:
+            self.state=self.DEATH
+            self.hit_frame=0
+            self.total_frames=0
+            self.death_frame=0
+        elif self.hit_frame==3 and self.hp==1:
+            self.state=self.RUN
+            self.run_frame=0
+            self.total_frames=0
+            self.hit_frame=0
+
+    def handle_death(self,frame_time):
+        self.total_frames+=self.FRAMES_PER_ACTION_DEATH*self.ACTION_PER_TIME*frame_time
+        self.death_frame=int(self.total_frames)
+
+    def return_death_frame(self):
+        return self.death_frame
+
+    handle_state = {
+        RUN : handle_run,
+        HIT : handle_hit,
+        DEATH : handle_death
+    }
+
+    def __init__(self):
+        self.x=800
+        self.y=495
+        self.run_frame,self.hit_frame,self.death_frame = (0,0,0)
+        self.run = load_image('resource\\monster3move_reverse.png')
+        self.hit = load_image('resource\\monster3hit_reverse.png')
+        self.death = load_image('resource\\monster3death_reverse.png')
+        self.crush=False
+        self.hp=2
+        self.state=self.RUN
+        self.total_frames=0.0
+    def draw(self):
+        if self.state==0:
+            self.run.clip_draw_to_origin(70*self.run_frame,0,70,65,self.x,self.y,120,100)
+        elif self.state==1:
+            self.hit.clip_draw_to_origin(0,0,75,68,self.x,self.y,120,100)
+        elif self.state==2:
+            self.death.clip_draw_to_origin(70*self.death_frame%2,0,70,63,self.x,self.y,120,100)
+
+    def update(self,frame_time):
+        self.handle_state[self.state](self,frame_time)
+
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+    def get_bb(self):
+        return self.x , self.y , self.x + 120, self.y + 100
+
 class Character_upside:
+    global tile
     RUN,JUMP,ATTACK=0,1,2
     PIXEL_PER_METER = (160.0/1.0)    # 160 pixel 100 cm
     JUMP_SPEED_MPS = 23   # M / SEC
@@ -183,7 +453,7 @@ class Character_upside:
         if self.jump_frame>=7 :
             self.state=self.RUN
             self.run_frame=0
-            self.y=560
+            self.y=460
 
     def handle_attack(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_ATTACK*self.ACTION_PER_TIME_ATTACK*frame_time
@@ -202,7 +472,8 @@ class Character_upside:
         self.handle_state[self.state](self,frame_time)  # if가 없어짐 -> 처리속도,수정이 빠름
 
     def __init__(self):
-        self.x, self.y = 160, 560
+        global re_hp
+        self.x, self.y = 160, 460
         self.run_frame,self.jump_frame,self.attack_frame = (0,0,0)
         self.run = load_image('resource\\character1run.png')
         self.jump = load_image('resource\\character1jump.png')
@@ -210,7 +481,7 @@ class Character_upside:
         self.hpbar=load_image('resource\\hpbar.png')
         self.keycheckup,self.keycheckdown,self.keycheckleft,self.keycheckright=(False,False,False,False)
         self.state=self.RUN
-        self.hp=10
+        self.hp = received_hp
         self.total_frames=0.0
 
     def draw(self):
@@ -221,7 +492,8 @@ class Character_upside:
         elif self.state==self.ATTACK:
             self.attack.clip_draw(self.attack_frame*220, 0, 220, 170, self.x+20, self.y+20)
         self.hpbar.clip_draw_to_origin(0,0,self.hp*27,15,50,850,self.hp*27,15)
-
+    def draw_minimap_character(self,tile):
+        self.run.clip_draw_to_origin(int(self.total_frames%6)*160, 0, 160, 135,300+tile.minimap_scroll/17.5,717, 40, 40)
     def draw_bb_body(self):
         draw_rectangle(*self.get_bb_body())
     def draw_bb_weapon(self):
@@ -275,7 +547,7 @@ class Character_downside:
         if self.jump_frame>=7 :
             self.state=self.RUN
             self.run_frame=0
-            self.y=330
+            self.y=230
 
     def handle_attack(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_ATTACK*self.ACTION_PER_TIME_ATTACK*frame_time
@@ -294,7 +566,7 @@ class Character_downside:
         self.handle_state[self.state](self,frame_time)  # if가 없어짐 -> 처리속도,수정이 빠름
 
     def __init__(self):
-        self.x, self.y = 160, 330
+        self.x, self.y = 160, 230
         self.run_frame,self.jump_frame,self.attack_frame = (0,0,0)
         self.run = load_image('resource\\character2run.png')
         self.jump = load_image('resource\\character2jump.png')
@@ -325,3 +597,8 @@ class Character_downside:
     def get_bb_weapon(self):
         if(self.state==self.ATTACK):
             return self.x+70 , self.y-15 , self.x+140 , self.y+55
+
+def get_hp(stage1_hp):
+    global received_hp
+    received_hp = stage1_hp
+    pass

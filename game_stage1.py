@@ -3,15 +3,20 @@ import json
 from pico2d import *
 import game_framework
 import game_title
+import game_stage2
+import stage2_class
 from stage1_class import *
 
 stage1bg = None
 main_character = None
 tile = None
+minimap=None
 monster_mouseset = None
 monster_wildboarset = None
-monsters=None
 current_time= get_time()
+cheat_fastframe = False
+stage1_bgm=None
+cheat_etc=None
 
 def create_monster_mouseset():
     monster_mouse_data_file= open('resource\\jsons\\stage1_monster_mouse_data.txt','r')
@@ -40,23 +45,31 @@ def create_monster_wildboarset():
     return monster_wildboarset
 
 def enter():
-    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,current_time,monsters
+    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,current_time,minimap,stage1_bgm,cheat_etc
     main_character=Character()
     tile=Tile()
+    minimap=Minimap()
     stage1bg=Background()
     monster_mouseset = create_monster_mouseset()
     monster_wildboarset = create_monster_wildboarset()
-    monsters=monster_mouseset+monster_wildboarset # wildboar도 행렬이면 됨
     current_time = get_time()
+    stage1_bgm=load_music('resource//sound//bgm_title.ogg')
+    stage1_bgm.set_volume(32)
+    stage1_bgm.repeat_play()
+    cheat_etc=load_wav('resource//sound//etc_cheat.wav')
+    cheat_etc.set_volume(32)
+    main_character.play_run_sound()
 
 def exit():
-    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,monsters
+    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,minimap,stage1_bgm,cheat_etc
     del(main_character)
     del(tile)
+    del(minimap)
     del(stage1bg)
     del(monster_mouseset)
     del(monster_wildboarset)
-    del(monsters)
+    del(stage1_bgm)
+    del(cheat_etc)
 
 def pause():
     pass
@@ -65,7 +78,7 @@ def resume():
     pass
 
 def handle_events():
-    global main_character
+    global main_character,cheat_fastframe,cheat_etc
     events=get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -98,51 +111,74 @@ def handle_events():
                 main_character.keycheckleft = False
             elif event.key == SDLK_RIGHT:
                 main_character.keycheckright = False
+        if event.type == SDL_KEYDOWN and event.key == SDLK_0:
+            cheat_fastframe=True
+            cheat_etc.set_volume(32)
+            cheat_etc.play(1)
+        elif event.type == SDL_KEYUP and event.key == SDLK_0:
+            cheat_fastframe=False
+            cheat_etc.set_volume(0)
 
 def update():
-    global main_character,monster_mouseset,monster_wildboarset,current_time,frame_time
+    global main_character,monster_mouseset,monster_wildboarset,current_time,frame_time,cheat_fastframe
     frame_time = get_time() - current_time
     #frame_rate = 1.0/frame_time
     #print("Frame Rage : %f fps, Frame time : %f sec, "%(frame_rate,frame_time))
     current_time +=frame_time
-    main_character.update(frame_time)
-    for monster_mouse in monsters:
-        if collide_body(main_character,monster_mouse) and monster_mouse.crush==False:
-            main_character.hp-=1
-            monster_mouse.crush=True
-    for monster_wildboar in monster_wildboarset:
-        if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_wildboar):
-            monster_wildboar.state=monster_wildboar.HIT
-            monster_wildboar.total_frames=0.0
-            monster_wildboar.crush=True
-        elif collide_body(main_character,monster_wildboar) and monster_wildboar.crush==False:
-            main_character.hp-=1
-            monster_wildboar.crush=True
-    tile.update(frame_time)
-    stage1bg.update(frame_time)
-    for monster_mouse in monsters:
-        monster_mouse.update(frame_time)
-    for monster_wildboar in monsters:
-        monster_wildboar.update(frame_time)
-    if(main_character.hp==0):
+    if cheat_fastframe == False:
+        main_character.update(frame_time)
+        tile.update(frame_time)
+        stage1bg.update(frame_time)
+        for monster_mouse in monster_mouseset:
+            monster_mouse.update(frame_time)
+        for monster_wildboar in monster_wildboarset:
+            monster_wildboar.update(frame_time)
+        for monster_mouse in monster_mouseset:
+            if collide_body(main_character,monster_mouse) and monster_mouse.crush==False:
+                main_character.hp-=1
+                monster_mouse.crush=True
+        for monster_wildboar in monster_wildboarset:
+            if monster_wildboar.return_death_frame()>=3:
+                monster_wildboarset.remove(monster_wildboar)
+            if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_wildboar) and monster_wildboar.state==monster_wildboar.RUN:
+                monster_wildboar.state=monster_wildboar.HIT
+                monster_wildboar.total_frames=0.0
+                monster_wildboar.crush=True
+            elif collide_body(main_character,monster_wildboar) and monster_wildboar.crush==False:
+                main_character.hp-=1
+                monster_wildboar.crush=True
+    else :
+        main_character.update(frame_time*10)
+        tile.update(frame_time*10)
+        stage1bg.update(frame_time*10)
+        for monster_mouse in monster_mouseset:
+            monster_mouse.update(frame_time*10)
+        for monster_wildboar in monster_wildboarset:
+            monster_wildboar.update(frame_time*5)
+
+    if tile.minimap_scroll>17000:
+        stage2_class.get_hp(int(main_character.hp))
+        game_framework.change_state(game_stage2)
+    elif main_character.hp==0:
         game_framework.change_state(game_title)
     delay(0.03)
 
 def draw():
     clear_canvas()
     stage1bg.draw()
+    minimap.draw()
     tile.draw()
-    for monster_mouse in monsters:
+    main_character.draw_minimap_character(tile)
+    for monster_mouse in monster_mouseset:
         monster_mouse.draw()
         monster_mouse.draw_bb()
-    for monster_wildboar in monsters:
+    for monster_wildboar in monster_wildboarset:
         monster_wildboar.draw()
         monster_wildboar.draw_bb()
     main_character.draw()
     main_character.draw_bb_body()
     if(main_character.state==main_character.ATTACK):
         main_character.draw_bb_weapon()
-
     update_canvas()
 
 def collide_body(a, b):

@@ -10,60 +10,127 @@ stage1bg = None
 main_character = None
 main_character2 = None
 tile = None
-monster_mouseset = None
-monster_wildboarset = None
-up_monsters=None
-down_monsters=None
+minimap=None
+monster_upside_mouseset = None
+monster_upside_wildboarset = None
+monster_upside_ironboarset=None
+monster_downside_mouseset = None
+monster_downside_wildboarset = None
+monster_downside_ironboarset=None
 current_time= get_time()
+cheat_fastframe = False
+
+def create_upside_monster_ironboarset():
+    monster_upside_ironboar_data_file= open('resource\\jsons\\stage2_upside_monster_ironboar_data.txt','r')
+    monster_upside_ironboar_data = json.load(monster_upside_ironboar_data_file)
+    monster_upside_ironboar_data_file.close()
+    monster_ironboarset=[]
+    for num in monster_upside_ironboar_data:
+        monster_ironboar = Monster_ironboar_upside()
+        monster_ironboar.num = num
+        monster_ironboar.x=monster_upside_ironboar_data[num]['x']+random.randint(0,500)
+        monster_ironboar.y=monster_upside_ironboar_data[num]['y']
+        monster_ironboarset.append(monster_ironboar)
+    return monster_ironboarset
 
 def create_upside_monster_mouseset():
-    monster_mouse_data_file= open('resource\\jsons\\stage2_upside_monster_mouse_data.txt','r')
-    monster_mouse_data = json.load(monster_mouse_data_file)
-    monster_mouse_data_file.close()
-    monster_mouseset=[]
-    for num in monster_mouse_data:
-        monster_mouse = Monster_mouse()
+    monster_upside_mouse_data_file= open('resource\\jsons\\stage2_upside_monster_mouse_data.txt','r')
+    monster_upside_mouse_data = json.load(monster_upside_mouse_data_file)
+    monster_upside_mouse_data_file.close()
+    monster_upside_mouseset=[]
+    for num in monster_upside_mouse_data:
+        monster_mouse = Monster_mouse_upside()
         monster_mouse.num = num
-        monster_mouse.x=monster_mouse_data[num]['x']+random.randint(0,500)
-        monster_mouse.y=monster_mouse_data[num]['y']
-        monster_mouseset.append(monster_mouse)
-    return monster_mouseset
+        monster_mouse.x=monster_upside_mouse_data[num]['x']+random.randint(0,500)
+        monster_mouse.y=monster_upside_mouse_data[num]['y']
+        monster_upside_mouseset.append(monster_mouse)
+    return monster_upside_mouseset
 
 def create_upside_monster_wildboarset():
-    monster_wildboar_data_file= open('resource\\jsons\\stage2_upside_monster_wildboar_data.txt','r')
-    monster_wildboar_data = json.load(monster_wildboar_data_file)
-    monster_wildboar_data_file.close()
-    monster_wildboarset=[]
-    for num in monster_wildboar_data:
-        monster_wildboar = Monster_wildboar()
+    monster_upside_wildboar_data_file= open('resource\\jsons\\stage2_upside_monster_wildboar_data.txt','r')
+    monster_upside_wildboar_data = json.load(monster_upside_wildboar_data_file)
+    monster_upside_wildboar_data_file.close()
+    monster_upside_wildboarset=[]
+    for num in monster_upside_wildboar_data:
+        monster_wildboar = Monster_wildboar_upside()
         monster_wildboar.num = num
-        monster_wildboar.x=monster_wildboar_data[num]['x']+random.randint(0,500)
-        monster_wildboar.y=monster_wildboar_data[num]['y']
-        monster_wildboarset.append(monster_wildboar)
-    return monster_wildboarset
+        monster_wildboar.x=monster_upside_wildboar_data[num]['x']+random.randint(0,500)
+        monster_wildboar.y=monster_upside_wildboar_data[num]['y']
+        monster_upside_wildboarset.append(monster_wildboar)
+    return monster_upside_wildboarset
 
+def create_downside_monster_ironboarset():
+    monster_downside_ironboar_data_file= open('resource\\jsons\\stage2_downside_monster_ironboar_data.txt','r')
+    monster_downside_ironboar_data = json.load(monster_downside_ironboar_data_file)
+    monster_downside_ironboar_data_file.close()
+    monster_downside_ironboarset=[]
+    for num in monster_downside_ironboar_data:
+        monster_ironboar = Monster_ironboar_downside()
+        monster_ironboar.num = num
+        monster_ironboar.x=monster_downside_ironboar_data[num]['x']+random.randint(0,500)
+        monster_ironboar.y=monster_downside_ironboar_data[num]['y']
+        monster_downside_ironboarset.append(monster_ironboar)
+    return monster_downside_ironboarset
+
+def create_downside_monster_mouseset():
+    monster_downside_mouse_data_file= open('resource\\jsons\\stage2_downside_monster_mouse_data.txt','r')
+    monster_downside_mouse_data = json.load(monster_downside_mouse_data_file)
+    monster_downside_mouse_data_file.close()
+    monster_downside_mouseset=[]
+    for num in monster_downside_mouse_data:
+        monster_mouse = Monster_mouse_downside()
+        monster_mouse.num = num
+        monster_mouse.x=monster_downside_mouse_data[num]['x']+random.randint(0,500)
+        monster_mouse.y=monster_downside_mouse_data[num]['y']
+        monster_downside_mouseset.append(monster_mouse)
+    return monster_downside_mouseset
+
+def create_downside_monster_wildboarset():
+    monster_downside_wildboar_data_file= open('resource\\jsons\\stage2_downside_monster_wildboar_data.txt','r')
+    monster_downside_wildboar_data = json.load(monster_downside_wildboar_data_file)
+    monster_downside_wildboar_data_file.close()
+    monster_downside_wildboarset=[]
+    for num in monster_downside_wildboar_data:
+        monster_wildboar = Monster_wildboar_downside()
+        monster_wildboar.num = num
+        monster_wildboar.x=monster_downside_wildboar_data[num]['x']+random.randint(0,500)
+        monster_wildboar.y=monster_downside_wildboar_data[num]['y']
+        monster_downside_wildboarset.append(monster_wildboar)
+    return monster_downside_wildboarset
 
 def enter():
-    global main_character,main_character2,tile,stage1bg,monster_mouseset,monster_wildboarset,current_time,up_monsters
+    global main_character,main_character2,tile,stage1bg,current_time,minimap
+    global monster_upside_mouseset,monster_upside_wildboarset,monster_upside_ironboarset
+    global monster_downside_mouseset,monster_downside_wildboarset,monster_downside_ironboarset
     main_character=Character_upside()
     main_character2=Character_downside()
     tile=Tile()
+    minimap=Minimap()
     stage1bg=Background()
-    monster_mouseset = create_upside_monster_mouseset()
-    monster_wildboarset = create_upside_monster_wildboarset()
+    monster_upside_mouseset = create_upside_monster_mouseset()
+    monster_upside_wildboarset = create_upside_monster_wildboarset()
+    monster_upside_ironboarset = create_upside_monster_ironboarset()
+    monster_downside_mouseset = create_downside_monster_mouseset()
+    monster_downside_wildboarset = create_downside_monster_wildboarset()
+    monster_downside_ironboarset = create_downside_monster_ironboarset()
     # up_monsters=monster_wildboarset+monster_mouseset # wildboar도 행렬이면 됨
     current_time = get_time()
 
 def exit():
-    global main_character,main_character2,tile,stage1bg,monster_mouseset,monster_wildboarset#,up_monsters
+    global main_character,main_character2,tile,stage1bg,minimap
+    global monster_upside_mouseset,monster_upside_wildboarset,monster_upside_ironboarset
+    global monster_downside_mouseset,monster_downside_wildboarset,monster_downside_ironboarset
     del(main_character)
     del(main_character2)
     del(tile)
+    del(minimap)
     del(stage1bg)
-    del(monster_mouseset)
-    del(monster_wildboarset)
-    # del(up_monsters)
-
+    del(monster_upside_mouseset)
+    del(monster_upside_wildboarset)
+    del(monster_upside_ironboarset)
+    del(monster_downside_mouseset)
+    del(monster_downside_wildboarset)
+    del(monster_downside_ironboarset)
 def pause():
     pass
 
@@ -71,7 +138,7 @@ def resume():
     pass
 
 def handle_events():
-    global main_character,main_character2
+    global main_character,main_character2,cheat_fastframe
     events=get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -127,51 +194,135 @@ def handle_events():
             elif event.key == SDLK_RIGHT:
                 main_character.keycheckright = False
                 main_character2.keycheckright = False
+        if event.type == SDL_KEYDOWN and event.key == SDLK_0:
+            cheat_fastframe=True
+        elif event.type == SDL_KEYUP and event.key == SDLK_0:
+            cheat_fastframe=False
 
 def update():
-    global main_character,main_character2,monster_mouseset,monster_wildboarset,current_time,frame_time
+    global main_character,main_character2,current_time,frame_time,cheat_fastframe
+    global monster_upside_mouseset,monster_upside_wildboarset,monster_upside_ironboarset
+    global downside_mouseset,monster_downside_wildboarset,monster_downside_ironboarset
     frame_time = get_time() - current_time
-    #frame_rate = 1.0/frame_time
-    #print("Frame Rage : %f fps, Frame time : %f sec, "%(frame_rate,frame_time))
     current_time +=frame_time
-    main_character.update(frame_time)
-    main_character2.update(frame_time)
-    for monster_wildboar in monster_wildboarset:
-        if monster_wildboar.return_death_frame()>=3:
-            monster_wildboarset.remove(monster_wildboar)
-        if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_wildboar) and monster_wildboar.state==monster_wildboar.RUN:
-            monster_wildboar.state=monster_wildboar.HIT
-            monster_wildboar.total_frames=0.0
-            monster_wildboar.crush=True
-        elif collide_body(main_character,monster_wildboar) and monster_wildboar.crush==False:
-            main_character.hp-=1
-            monster_wildboar.crush=True
 
-    for monster_mouse in monster_mouseset:
-        if collide_body(main_character,monster_mouse) and monster_mouse.crush==False:
-            main_character.hp-=1
-            monster_mouse.crush=True
+    if cheat_fastframe == False:
+        main_character.update(frame_time)
+        main_character2.update(frame_time)
+        tile.update(frame_time)
+        stage1bg.update(frame_time)
+        for monster_mouse in monster_upside_mouseset:
+           monster_mouse.update(frame_time)
+        for monster_wildboar in monster_upside_wildboarset:
+            monster_wildboar.update(frame_time)
+        for monster_ironboar in monster_upside_ironboarset:
+            monster_ironboar.update(frame_time)
+        for monster_mouse in monster_downside_mouseset:
+            monster_mouse.update(frame_time)
+        for monster_wildboar in monster_downside_wildboarset:
+            monster_wildboar.update(frame_time)
+        for monster_ironboar in monster_downside_ironboarset:
+            monster_ironboar.update(frame_time)
+        for monster_mouse in monster_upside_mouseset:
+            if collide_body(main_character,monster_mouse) and monster_mouse.crush==False:
+                main_character.hp-=1
+                monster_mouse.crush=True
+        for monster_wildboar in monster_upside_wildboarset:
+            if monster_wildboar.return_death_frame()>=3:
+                monster_upside_wildboarset.remove(monster_wildboar)
+            if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_wildboar) and monster_wildboar.state==monster_wildboar.RUN:
+                monster_wildboar.state=monster_wildboar.HIT
+                monster_wildboar.total_frames=0.0
+                monster_wildboar.crush=True
+            elif collide_body(main_character,monster_wildboar) and monster_wildboar.crush==False:
+                main_character.hp-=1
+                monster_wildboar.crush=True
+        for monster_ironboar in monster_upside_ironboarset:
+            if monster_ironboar.return_death_frame()>=3:
+                    monster_upside_ironboarset.remove(monster_ironboar)
+            if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_ironboar) and monster_ironboar.state==monster_ironboar.RUN:
+                    monster_ironboar.state=monster_ironboar.HIT
+                    monster_ironboar.total_frames=0.0
+                    monster_ironboar.hp-=1
+            elif collide_body(main_character,monster_ironboar) and monster_ironboar.hp>0 and monster_ironboar.crush==False:
+                    main_character.hp-=1
+                    monster_ironboar.crush=True
 
-    tile.update(frame_time)
-    stage1bg.update(frame_time)
-    for monster_mouse in monster_mouseset:
-        monster_mouse.update(frame_time)
-    for monster_wildboar in monster_wildboarset:
-        monster_wildboar.update(frame_time)
-    if(main_character.hp==0):
+        for monster_mouse in monster_downside_mouseset:
+            if collide_body(main_character2,monster_mouse) and monster_mouse.crush==False:
+                main_character.hp-=1
+                monster_mouse.crush=True
+        for monster_wildboar in monster_downside_wildboarset:
+            if monster_wildboar.return_death_frame()>=3:
+                monster_downside_wildboarset.remove(monster_wildboar)
+            if main_character2.state==main_character2.ATTACK and collide_weapon(main_character2,monster_wildboar) and monster_wildboar.state==monster_wildboar.RUN:
+                monster_wildboar.state=monster_wildboar.HIT
+                monster_wildboar.total_frames=0.0
+                monster_wildboar.crush=True
+            elif collide_body(main_character2,monster_wildboar) and monster_wildboar.crush==False:
+                main_character.hp-=1
+                monster_wildboar.crush=True
+        for monster_ironboar in monster_downside_ironboarset:
+            if monster_ironboar.return_death_frame()>=3:
+                    monster_downside_ironboarset.remove(monster_ironboar)
+            if main_character2.state==main_character2.ATTACK and collide_weapon(main_character2,monster_ironboar) and monster_ironboar.state==monster_ironboar.RUN:
+                    monster_ironboar.state=monster_ironboar.HIT
+                    monster_ironboar.total_frames=0.0
+                    monster_ironboar.hp-=1
+            elif collide_body(main_character2,monster_ironboar) and monster_ironboar.hp>0 and monster_ironboar.crush==False:
+                    main_character.hp-=1
+                    monster_ironboar.crush=True
+    else :
+        main_character.update(frame_time*10)
+        main_character2.update(frame_time*10)
+        tile.update(frame_time*10)
+        stage1bg.update(frame_time*10)
+        for monster_mouse in monster_upside_mouseset:
+           monster_mouse.update(frame_time*10)
+        for monster_wildboar in monster_upside_wildboarset:
+            monster_wildboar.update(frame_time*10)
+        for monster_ironboar in monster_upside_ironboarset:
+            monster_ironboar.update(frame_time*10)
+        for monster_mouse in monster_downside_mouseset:
+            monster_mouse.update(frame_time*10)
+        for monster_wildboar in monster_downside_wildboarset:
+            monster_wildboar.update(frame_time*10)
+        for monster_ironboar in monster_downside_ironboarset:
+            monster_ironboar.update(frame_time*10)
+
+
+    if tile.minimap_scroll>17000 :
         game_framework.change_state(game_title)
+    elif(main_character.hp==0):
+        game_framework.change_state(game_title)
+
     delay(0.03)
 
 def draw():
     clear_canvas()
     stage1bg.draw()
     tile.draw()
-    for monster_mouse in monster_mouseset:
+    minimap.draw()
+    main_character.draw_minimap_character(tile)
+    for monster_mouse in monster_upside_mouseset:
         monster_mouse.draw()
         monster_mouse.draw_bb()
-    for monster_wildboar in monster_wildboarset:
+    for monster_wildboar in monster_upside_wildboarset:
         monster_wildboar.draw()
         monster_wildboar.draw_bb()
+    for monster_ironboar in monster_upside_ironboarset:
+        monster_ironboar.draw()
+        monster_ironboar.draw_bb()
+
+    for monster_mouse in monster_downside_mouseset:
+        monster_mouse.draw()
+        monster_mouse.draw_bb()
+    for monster_wildboar in monster_downside_wildboarset:
+        monster_wildboar.draw()
+        monster_wildboar.draw_bb()
+    for monster_ironboar in monster_downside_ironboarset:
+        monster_ironboar.draw()
+        monster_ironboar.draw_bb()
     main_character.draw()
     main_character2.draw()
     main_character.draw_bb_body()
@@ -180,7 +331,6 @@ def draw():
         main_character.draw_bb_weapon()
     if(main_character2.state==main_character2.ATTACK):
         main_character2.draw_bb_weapon()
-
     update_canvas()
 
 def collide_body(a, b):
