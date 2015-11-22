@@ -1,7 +1,8 @@
 해야할것 순서
-1. 시간 배웠다 적용 ㄱㄱ
-2. 몬스터 123 충돌체크=> 충돌체크 배운다 바꿀준비
-3. 바운딩 박스부터 그리고 충돌체크, 
-4. monsters=monster_mouse + monster_wildboar ㄱㄱ
-5. 캐릭터가 어디까지 갔는지 위에 상태바 추가
-6. 캐릭터 클래스 따로 빼주자 스테이지 123다써야지
+1. monsters=monster_mouse + monster_wildboar ㄱㄱ => for aa in monsters aa.remove
+
+2. 캐릭터가 어디까지 갔는지 위에 상태바 추가
+
+3. 스테이지 2 배열,몬스터 추가, 사람 추가.
+
+4.BGM
