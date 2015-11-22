@@ -1,7 +1,7 @@
 from pico2d import *
 
 import game_framework
-import game_stage1
+import game_stage2
 
 
 titlebg = None
@@ -76,7 +76,7 @@ def handle_events():
                 else:
                     exitmouseon=False
             if event.type == SDL_MOUSEBUTTONDOWN and startmouseon==True:
-                game_framework.change_state(game_stage1)
+                game_framework.change_state(game_stage2)
             elif event.type == SDL_MOUSEBUTTONDOWN and exitmouseon==True:
                 game_framework.quit()
             elif event.type == SDL_MOUSEBUTTONDOWN and startmouseon==False and exitmouseon==False:

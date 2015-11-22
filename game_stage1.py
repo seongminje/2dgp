@@ -3,13 +3,14 @@ import json
 from pico2d import *
 import game_framework
 import game_title
-from class_data import *
+from stage1_class import *
 
 stage1bg = None
 main_character = None
 tile = None
 monster_mouseset = None
-monster_wildboar = None
+monster_wildboarset = None
+monsters=None
 current_time= get_time()
 
 def create_monster_mouseset():
@@ -25,22 +26,37 @@ def create_monster_mouseset():
         monster_mouseset.append(monster_mouse)
     return monster_mouseset
 
+def create_monster_wildboarset():
+    monster_wildboar_data_file= open('resource\\jsons\\stage1_monster_wildboar_data.txt','r')
+    monster_wildboar_data = json.load(monster_wildboar_data_file)
+    monster_wildboar_data_file.close()
+    monster_wildboarset=[]
+    for num in monster_wildboar_data:
+        monster_wildboar = Monster_wildboar()
+        monster_wildboar.num = num
+        monster_wildboar.x=monster_wildboar_data[num]['x']
+        monster_wildboar.y=monster_wildboar_data[num]['y']
+        monster_wildboarset.append(monster_wildboar)
+    return monster_wildboarset
+
 def enter():
-    global main_character,tile,stage1bg,monster_mouseset,monster_wildboar,current_time
+    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,current_time,monsters
     main_character=Character()
     tile=Tile()
     stage1bg=Background()
     monster_mouseset = create_monster_mouseset()
-    monster_wildboar = Monster_wildboar()
+    monster_wildboarset = create_monster_wildboarset()
+    monsters=monster_mouseset+monster_wildboarset # wildboar도 행렬이면 됨
     current_time = get_time()
 
 def exit():
-    global main_character,tile,stage1bg,monster_mouseset,monster_wildboar
+    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,monsters
     del(main_character)
     del(tile)
     del(stage1bg)
     del(monster_mouseset)
-    del(monster_wildboar)
+    del(monster_wildboarset)
+    del(monsters)
 
 def pause():
     pass
@@ -84,40 +100,65 @@ def handle_events():
                 main_character.keycheckright = False
 
 def update():
-    global monster_mouseset,main_character,monster_wildboar,current_time,frame_time
+    global main_character,monster_mouseset,monster_wildboarset,current_time,frame_time
     frame_time = get_time() - current_time
     #frame_rate = 1.0/frame_time
     #print("Frame Rage : %f fps, Frame time : %f sec, "%(frame_rate,frame_time))
     current_time +=frame_time
-
     main_character.update(frame_time)
-    for monster_mouse in monster_mouseset:
-        if main_character.x in range(monster_mouse.x, monster_mouse.x+80) and main_character.y-65 in range(monster_mouse.y-30, monster_mouse.y+50) and monster_mouse.crush==False:
+    for monster_mouse in monsters:
+        if collide_body(main_character,monster_mouse) and monster_mouse.crush==False:
             main_character.hp-=1
             monster_mouse.crush=True
-    if main_character.state==main_character.ATTACK and main_character.x+90 in range(monster_wildboar.x-20,monster_wildboar.x+40):
-        monster_wildboar.state=monster_wildboar.HIT
-        monster_wildboar.total_frames=0.0
-        monster_wildboar.crush=True
-    elif main_character.x in range(monster_wildboar.x-30,monster_wildboar.x+20) and monster_wildboar.crush==False:
-        main_character.hp-=1
-        monster_wildboar.crush=True
+    for monster_wildboar in monster_wildboarset:
+        if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_wildboar):
+            monster_wildboar.state=monster_wildboar.HIT
+            monster_wildboar.total_frames=0.0
+            monster_wildboar.crush=True
+        elif collide_body(main_character,monster_wildboar) and monster_wildboar.crush==False:
+            main_character.hp-=1
+            monster_wildboar.crush=True
     tile.update(frame_time)
     stage1bg.update(frame_time)
-    for monster_mouse in monster_mouseset:
+    for monster_mouse in monsters:
         monster_mouse.update(frame_time)
-    monster_wildboar.update(frame_time)
+    for monster_wildboar in monsters:
+        monster_wildboar.update(frame_time)
     if(main_character.hp==0):
         game_framework.change_state(game_title)
-
     delay(0.03)
 
 def draw():
     clear_canvas()
     stage1bg.draw()
     tile.draw()
-    for monster_mouse in monster_mouseset:
+    for monster_mouse in monsters:
         monster_mouse.draw()
+        monster_mouse.draw_bb()
+    for monster_wildboar in monsters:
+        monster_wildboar.draw()
+        monster_wildboar.draw_bb()
     main_character.draw()
-    monster_wildboar.draw()
+    main_character.draw_bb_body()
+    if(main_character.state==main_character.ATTACK):
+        main_character.draw_bb_weapon()
+
     update_canvas()
+
+def collide_body(a, b):
+    left_a, bottom_a, right_a, top_a = a.get_bb_body()
+    left_b, bottom_b, right_b, top_b = b.get_bb()
+    if left_a > right_b: return False
+    if right_a < left_b: return False
+    if top_a < bottom_b: return False
+    if bottom_a > top_b: return False
+    return True
+
+def collide_weapon(a, b):
+    left_a, bottom_a, right_a, top_a = a.get_bb_weapon()
+    left_b, bottom_b, right_b, top_b = b.get_bb()
+    if left_a > right_b: return False
+    if right_a < left_b: return False
+    if top_a < bottom_b: return False
+    if bottom_a > top_b: return False
+    return True
