@@ -15,8 +15,9 @@ monster_mouseset = None
 monster_wildboarset = None
 current_time= get_time()
 cheat_fastframe = False
+game_pause=None
 stage1_bgm=None
-cheat_etc=None
+cheat_etc= None
 
 def create_monster_mouseset():
     monster_mouse_data_file= open('resource\\jsons\\stage1_monster_mouse_data.txt','r')
@@ -45,7 +46,7 @@ def create_monster_wildboarset():
     return monster_wildboarset
 
 def enter():
-    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,current_time,minimap,stage1_bgm,cheat_etc
+    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,current_time,minimap,stage1_bgm,cheat_etc,game_pause
     main_character=Character()
     tile=Tile()
     minimap=Minimap()
@@ -57,11 +58,12 @@ def enter():
     stage1_bgm.set_volume(32)
     stage1_bgm.repeat_play()
     cheat_etc=load_wav('resource//sound//etc_cheat.wav')
-    cheat_etc.set_volume(32)
-    main_character.play_run_sound()
+    cheat_etc.set_volume(0)
+    cheat_etc.repeat_play()
+    game_pause=Pause()
 
 def exit():
-    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,minimap,stage1_bgm,cheat_etc
+    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,minimap,stage1_bgm,cheat_etc,game_pause
     del(main_character)
     del(tile)
     del(minimap)
@@ -70,6 +72,7 @@ def exit():
     del(monster_wildboarset)
     del(stage1_bgm)
     del(cheat_etc)
+    del(game_pause)
 
 def pause():
     pass
@@ -78,7 +81,7 @@ def resume():
     pass
 
 def handle_events():
-    global main_character,cheat_fastframe,cheat_etc
+    global main_character,cheat_fastframe,cheat_etc,game_pause
     events=get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -92,14 +95,16 @@ def handle_events():
                 main_character.keycheckleft = True
             elif event.key == SDLK_RIGHT:
                 main_character.keycheckright = True
-            elif event.key == SDLK_z:
+            elif event.key == SDLK_a:
                 main_character.state=1
                 main_character.jump_frame=0
                 main_character.total_frames=0
-            elif event.key == SDLK_x:
+                main_character.jump_sound.play()
+            elif event.key == SDLK_s:
                 main_character.state=2
                 main_character.attack_frame=0
                 main_character.total_frames=0
+                main_character.attack_sound.play()
             elif event.key==SDLK_ESCAPE:
                 game_framework.change_state(game_title)
         elif event.type == SDL_KEYUP:
@@ -114,60 +119,67 @@ def handle_events():
         if event.type == SDL_KEYDOWN and event.key == SDLK_0:
             cheat_fastframe=True
             cheat_etc.set_volume(32)
-            cheat_etc.play(1)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_p:
+            if game_pause.pressed==False:
+                game_pause.pressed=True
+            else:
+                game_pause.pressed=False
         elif event.type == SDL_KEYUP and event.key == SDLK_0:
             cheat_fastframe=False
             cheat_etc.set_volume(0)
 
 def update():
-    global main_character,monster_mouseset,monster_wildboarset,current_time,frame_time,cheat_fastframe
-    frame_time = get_time() - current_time
-    #frame_rate = 1.0/frame_time
-    #print("Frame Rage : %f fps, Frame time : %f sec, "%(frame_rate,frame_time))
-    current_time +=frame_time
-    if cheat_fastframe == False:
-        main_character.update(frame_time)
-        tile.update(frame_time)
-        stage1bg.update(frame_time)
-        for monster_mouse in monster_mouseset:
-            monster_mouse.update(frame_time)
-        for monster_wildboar in monster_wildboarset:
-            monster_wildboar.update(frame_time)
-        for monster_mouse in monster_mouseset:
-            if collide_body(main_character,monster_mouse) and monster_mouse.crush==False:
-                main_character.hp-=1
-                monster_mouse.crush=True
-        for monster_wildboar in monster_wildboarset:
-            if monster_wildboar.return_death_frame()>=3:
-                monster_wildboarset.remove(monster_wildboar)
-            if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_wildboar) and monster_wildboar.state==monster_wildboar.RUN:
-                monster_wildboar.state=monster_wildboar.HIT
-                monster_wildboar.total_frames=0.0
-                monster_wildboar.crush=True
-            elif collide_body(main_character,monster_wildboar) and monster_wildboar.crush==False:
-                main_character.hp-=1
-                monster_wildboar.crush=True
-    else :
-        main_character.update(frame_time*10)
-        tile.update(frame_time*10)
-        stage1bg.update(frame_time*10)
-        for monster_mouse in monster_mouseset:
-            monster_mouse.update(frame_time*10)
-        for monster_wildboar in monster_wildboarset:
-            monster_wildboar.update(frame_time*5)
+    if game_pause.pressed == False:
+        global main_character,monster_mouseset,monster_wildboarset,current_time,frame_time,cheat_fastframe
+        frame_time = get_time() - current_time
+        current_time +=frame_time
+        if cheat_fastframe == False:
+            main_character.update(frame_time)
+            tile.update(frame_time)
+            stage1bg.update(frame_time)
+            for monster_mouse in monster_mouseset:
+                monster_mouse.update(frame_time)
+            for monster_wildboar in monster_wildboarset:
+                monster_wildboar.update(frame_time)
+            for monster_mouse in monster_mouseset:
+                if collide_body(main_character,monster_mouse) and monster_mouse.crush==False:
+                    main_character.hp-=1
+                    main_character.hp_sound.play()
+                    monster_mouse.crush=True
+            for monster_wildboar in monster_wildboarset:
+                if monster_wildboar.return_death_frame()>=3:
+                    monster_wildboarset.remove(monster_wildboar)
+                if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_wildboar) and monster_wildboar.state==monster_wildboar.RUN:
+                    monster_wildboar.state=monster_wildboar.HIT
+                    monster_wildboar.death_sound.play()
+                    monster_wildboar.total_frames=0.0
+                    monster_wildboar.crush=True
+                elif collide_body(main_character,monster_wildboar) and monster_wildboar.crush==False:
+                    main_character.hp-=1
+                    main_character.hp_sound.play()
+                    monster_wildboar.crush=True
+        else :
+            main_character.update(frame_time*10)
+            tile.update(frame_time*10)
+            stage1bg.update(frame_time*10)
+            for monster_mouse in monster_mouseset:
+                monster_mouse.update(frame_time*10)
+            for monster_wildboar in monster_wildboarset:
+                monster_wildboar.update(frame_time*10)
 
-    if tile.minimap_scroll>17000:
-        stage2_class.get_hp(int(main_character.hp))
-        game_framework.change_state(game_stage2)
-    elif main_character.hp==0:
-        game_framework.change_state(game_title)
-    delay(0.03)
+        if tile.minimap_scroll>17500:
+            stage2_class.get_hp(int(main_character.hp))
+            game_framework.change_state(game_stage2)
+        elif main_character.hp==0:
+            game_framework.change_state(game_title)
+        delay(0.03)
 
 def draw():
     clear_canvas()
     stage1bg.draw()
     minimap.draw()
     tile.draw()
+    game_pause.draw()
     main_character.draw_minimap_character(tile)
     for monster_mouse in monster_mouseset:
         monster_mouse.draw()

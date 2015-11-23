@@ -22,12 +22,12 @@ starty,helpy,exity=900,900,900
 mousex,mousey=None,None
 title_time = 0.0
 title_bgm=None
-title_etc_mouseon=None
+etc_mouseon=None
 
 
 def enter():
+    global title_bgm,etc_mouseon
     global titlebg,firstsubject,middlesubject,lastsubject,basicstart,shadowstart,basichelp,shadowhelp,basicexit,shadowexit,explain
-    global title_bgm,title_etc_mouseon
     titlebg = load_image('resource//titlebg.png')
     firstsubject = load_image('resource//name1.png')
     middlesubject = load_image('resource//name2.png')
@@ -38,16 +38,16 @@ def enter():
     shadowhelp=load_image('resource//help2.png')
     basicexit=load_image('resource//exit1.png')
     shadowexit=load_image('resource//exit2.png')
-    explain=load_image('resource//BG1.png')
+    explain=load_image('resource//explain.png')
     title_bgm=load_music('resource//sound//bgm_title.ogg')
-    title_etc_mouseon=load_wav('resource//sound//etc_title_mouseon.wav')
+    etc_mouseon=load_wav('resource//sound//etc_mouseon.wav')
     title_bgm.set_volume(56)
     title_bgm.repeat_play()
-    title_etc_mouseon.set_volume(32)
+    etc_mouseon.set_volume(32)
 
 def exit():
     global titlebg,firstsubject,middlesubject,lastsubject,basicstart,shadowstart,basichelp,shadowhelp,basicexit,shadowexit,explain
-    global title_bgm,title_etc_mouseon
+    global title_bgm,etc_mouseon
     del(titlebg)
     del(firstsubject)
     del(middlesubject)
@@ -60,11 +60,11 @@ def exit():
     del(shadowexit)
     del(explain)
     del(title_bgm)
-    del(title_etc_mouseon)
+    del(etc_mouseon)
 
 def handle_events():
     global mousex,mousey,startmouseon,helpmouseon,exitmouseon,starty,helpy,exity,title_time,firstsubjectx,middlesubjecty,lastsubjectx
-    global title_bgm,title_etc_mouseon
+    global title_bgm,etc_mouseon
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -76,17 +76,17 @@ def handle_events():
                 mousex,mousey=event.x, 900-event.y
                 if(mousex>=1260 and mousex<=1500 and mousey>=starty and mousey<=starty+80):
                     startmouseon=True
-                    title_etc_mouseon.play(1)
+                    etc_mouseon.play(1)
                 else:
                     startmouseon=False
                 if(mousex>=1320 and mousex<=1500 and mousey>=helpy and mousey<=helpy+80):
                     helpmouseon=True
-                    title_etc_mouseon.play(1)
+                    etc_mouseon.play(1)
                 else:
                     helpmouseon=False
                 if(mousex>=1320 and mousex<=1500 and mousey>=exity and mousey<=exity+80):
                     exitmouseon=True
-                    title_etc_mouseon.play(1)
+                    etc_mouseon.play(1)
                 else:
                     exitmouseon=False
             if event.type == SDL_MOUSEBUTTONDOWN and startmouseon==True:
@@ -114,7 +114,7 @@ def draw():
         basicstart.clip_draw_to_origin(0,0,250,100,1200,starty,300,120)
     if(helpmouseon==True):
         shadowhelp.clip_draw_to_origin(0,0,250,100,1200,helpy,300,120)
-        explain.clip_draw_to_origin(0,0,1600,900,250,300,800,300)
+        explain.clip_draw_to_origin(0,0,1000,400,200,250,1000,400)
     else:
         basichelp.clip_draw_to_origin(0,0,250,100,1200,helpy,300,120)
     if(exitmouseon==True):

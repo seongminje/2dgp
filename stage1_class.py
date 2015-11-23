@@ -4,13 +4,24 @@ import json
 from pico2d import *
 from game_stage1 import  *
 
+class Pause:
+    image=None
+    def __init__(self):
+        if Pause.image == None:
+            Pause.image = load_image('resource\\pause.png')
+        self.pressed=False
+    def draw(self):
+        if self.pressed == True:
+            self.image.clip_draw_to_origin(0,0,1366,350,300,300,1000,300)
+
 class Minimap:
     image=None
     def __init__(self):
         if Minimap.image == None:
             Minimap.image = load_image('resource\\stage1_minimap.png')
     def draw(self):
-        self.image.clip_draw_to_origin(0,0,1000,60,300,700,1000,60)
+        self.image.clip_draw_to_origin(0,0,1000,60,300,700,1030,60)
+
 
 class Background:
     image=None
@@ -97,6 +108,8 @@ class Monster_wildboar:
     FRAMES_PER_ACTION_RUN = 3
     FRAMES_PER_ACTION_HIT = 5
     FRAMES_PER_ACTION_DEATH = 3
+
+    death_sound=None
     def handle_run(self,frame_time):
         distance=self.RUN_SPEED_PPS*frame_time
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME*frame_time
@@ -137,6 +150,9 @@ class Monster_wildboar:
         self.crush=False
         self.state=self.RUN
         self.total_frames=0.0
+        if Monster_wildboar.death_sound==None:
+            Monster_wildboar.death_sound = load_wav('resource//sound//etc_wildboar_hit.wav')
+            Monster_wildboar.death_sound.set_volume(64)
     def draw(self):
         if self.state==0:
             self.run.clip_draw_to_origin(73*self.run_frame,0,73,52,self.x,self.y,120,100)
@@ -176,6 +192,8 @@ class Character:
     hp_sound=None
 
     def handle_run(self,frame_time):
+        if self.run_frame==0:
+            self.run_sound.play()
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME_RUN*frame_time
         self.run_frame=int(self.total_frames)%6
         # self.run_frame = (self.run_frame + 1) % 6
@@ -187,20 +205,16 @@ class Character:
             self.x-=10
         if self.keycheckright==True:
             self.x+=10
-    def play_run_sound(self):
-        self.run_sound.play()
 
     def handle_jump(self,frame_time):
         self.y+=self.JUMP_SPEED_MPS-self.GRAVITY/2*(2*self.jump_frame-1)
+        # print(self.y)
         self.total_frames+=self.FRAMES_PER_ACTION_JUMP*self.ACTION_PER_TIME_JUMP*frame_time
         self.jump_frame=int(self.total_frames)
         if self.jump_frame>=7 :
             self.state=self.RUN
             self.run_frame=0
             self.y=160
-            self.run_sound.play()
-    def play_jump_sound(self):
-        self.jump_sound.play()
 
     def handle_attack(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_ATTACK*self.ACTION_PER_TIME_ATTACK*frame_time
@@ -208,7 +222,6 @@ class Character:
         if self.attack_frame==6 :
             self.state=self.RUN
             self.run_frame=0
-            # self.run_sound.play()
 
     handle_state = {
         RUN : handle_run,
@@ -228,20 +241,20 @@ class Character:
         self.hpbar=load_image('resource\\hpbar.png')
         self.keycheckup,self.keycheckdown,self.keycheckleft,self.keycheckright=(False,False,False,False)
         self.state=self.RUN
-        self.hp=10
+        self.hp=15
         self.total_frames=0.0
         if Character.run_sound==None:
             Character.run_sound = load_wav('resource//sound//etc_character_run.wav')
-            Character.run_sound.set_volume(32)
+            Character.run_sound.set_volume(64)
         if Character.jump_sound==None:
             Character.jump_sound = load_wav('resource//sound//etc_character_jump.wav')
-            Character.jump_sound.set_volume(32)
+            Character.jump_sound.set_volume(64)
         if Character.attack_sound==None:
             Character.attack_sound = load_wav('resource//sound//etc_character_attack.wav')
-            Character.attack_sound.set_volume(32)
+            Character.attack_sound.set_volume(64)
         if Character.hp_sound==None:
             Character.hp_sound = load_wav('resource//sound//etc_character_hp.wav')
-            Character.hp_sound.set_volume(32)
+            Character.hp_sound.set_volume(64)
 
     def draw(self):
         if self.state==self.RUN:
@@ -250,7 +263,7 @@ class Character:
             self.jump.clip_draw(self.jump_frame*130, 0, 130, 165, self.x, self.y+10)
         elif self.state==self.ATTACK:
             self.attack.clip_draw(self.attack_frame*220, 0, 220, 170, self.x+20, self.y+20)
-        self.hpbar.clip_draw_to_origin(0,0,self.hp*27,15,50,850,self.hp*27,15)
+        self.hpbar.clip_draw_to_origin(0,0,self.hp*18,15,50,850,self.hp*27,15)
 
     def draw_minimap_character(self,tile):
         self.run.clip_draw_to_origin(int(self.total_frames%6)*160, 0, 160, 135,300+tile.minimap_scroll/17.5,717, 40, 40)

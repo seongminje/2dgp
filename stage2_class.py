@@ -12,7 +12,7 @@ class Minimap:
         if Minimap.image == None:
             Minimap.image = load_image('resource\\stage2_minimap.png')
     def draw(self):
-        self.image.clip_draw_to_origin(0,0,1000,60,300,700,1000,60)
+        self.image.clip_draw_to_origin(0,0,1000,60,300,700,1030,60)
 
 class Background:
     image=None
@@ -129,6 +129,7 @@ class Monster_wildboar_upside:
     FRAMES_PER_ACTION_RUN = 3
     FRAMES_PER_ACTION_HIT = 5
     FRAMES_PER_ACTION_DEATH = 3
+    death_sound=None
     def handle_run(self,frame_time):
         distance=self.RUN_SPEED_PPS*frame_time
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME*frame_time
@@ -169,6 +170,9 @@ class Monster_wildboar_upside:
         self.crush=False
         self.state=self.RUN
         self.total_frames=0.0
+        if Monster_wildboar_upside.death_sound==None:
+            Monster_wildboar_upside.death_sound = load_wav('resource//sound//etc_wildboar_hit.wav')
+            Monster_wildboar_upside.death_sound.set_volume(64)
     def draw(self):
         if self.state==0:
             self.run.clip_draw_to_origin(73*self.run_frame,0,73,52,self.x,self.y,120,100)
@@ -197,6 +201,7 @@ class Monster_wildboar_downside:
     FRAMES_PER_ACTION_RUN = 3
     FRAMES_PER_ACTION_HIT = 5
     FRAMES_PER_ACTION_DEATH = 3
+    death_sound=None
     def handle_run(self,frame_time):
         distance=self.RUN_SPEED_PPS*frame_time
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME*frame_time
@@ -236,6 +241,9 @@ class Monster_wildboar_downside:
         self.crush=False
         self.state=self.RUN
         self.total_frames=0.0
+        if Monster_wildboar_downside.death_sound==None:
+            Monster_wildboar_downside.death_sound = load_wav('resource//sound//etc_wildboar_hit.wav')
+            Monster_wildboar_downside.death_sound.set_volume(64)
     def draw(self):
         if self.state==0:
             self.run.clip_draw_to_origin(73*self.run_frame,0,73,52,self.x,self.y,120,100)
@@ -270,6 +278,10 @@ class Monster_ironboar_upside:
     FRAMES_PER_ACTION_RUN = 2
     FRAMES_PER_ACTION_HIT = 5
     FRAMES_PER_ACTION_DEATH = 4
+
+    hit_sound=None
+    death_sound=None
+
     def handle_run(self,frame_time):
         distance=self.RUN_SPEED_PPS*frame_time
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME*frame_time
@@ -284,6 +296,7 @@ class Monster_ironboar_upside:
             self.x+=int(distance/(self.hit_frame+1))
         if self.hit_frame==2  and self.hp==0:
             self.state=self.DEATH
+            self.death_sound.play()
             self.hit_frame=0
             self.total_frames=0
             self.death_frame=0
@@ -317,6 +330,12 @@ class Monster_ironboar_upside:
         self.hp=2
         self.state=self.RUN
         self.total_frames=0.0
+        if Monster_ironboar_upside.death_sound==None:
+            Monster_ironboar_upside.death_sound = load_wav('resource//sound//etc_wildboar_hit.wav')
+            Monster_ironboar_upside.death_sound.set_volume(64)
+        if Monster_ironboar_upside.hit_sound==None:
+            Monster_ironboar_upside.hit_sound = load_wav('resource//sound//etc_ironboar_hit.wav')
+            Monster_ironboar_upside.hit_sound.set_volume(64)
     def draw(self):
         if self.state==0:
             self.run.clip_draw_to_origin(70*self.run_frame,0,70,65,self.x,self.y,120,100)
@@ -351,6 +370,10 @@ class Monster_ironboar_downside:
     FRAMES_PER_ACTION_RUN = 2
     FRAMES_PER_ACTION_HIT = 5
     FRAMES_PER_ACTION_DEATH = 4
+
+    hit_sound=None
+    death_sound=None
+
     def handle_run(self,frame_time):
         distance=self.RUN_SPEED_PPS*frame_time
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME*frame_time
@@ -365,6 +388,7 @@ class Monster_ironboar_downside:
             self.x+=int(distance/(self.hit_frame+1))
         if self.hit_frame==2  and self.hp==0:
             self.state=self.DEATH
+            self.death_sound.play()
             self.hit_frame=0
             self.total_frames=0
             self.death_frame=0
@@ -398,6 +422,12 @@ class Monster_ironboar_downside:
         self.hp=2
         self.state=self.RUN
         self.total_frames=0.0
+        if Monster_ironboar_downside.death_sound==None:
+            Monster_ironboar_downside.death_sound = load_wav('resource//sound//etc_wildboar_hit.wav')
+            Monster_ironboar_downside.death_sound.set_volume(64)
+        if Monster_ironboar_downside.hit_sound==None:
+            Monster_ironboar_downside.hit_sound = load_wav('resource//sound//etc_ironboar_hit.wav')
+            Monster_ironboar_downside.hit_sound.set_volume(64)
     def draw(self):
         if self.state==0:
             self.run.clip_draw_to_origin(70*self.run_frame,0,70,65,self.x,self.y,120,100)
@@ -431,8 +461,16 @@ class Character_upside:
     FRAMES_PER_ACTION_RUN = 6
     FRAMES_PER_ACTION_JUMP = 7
     FRAMES_PER_ACTION_ATTACK = 6
+
+    run_sound=None
+    jump_sound=None
+    attack_sound=None
+    hp_sound=None
+
     #s=v0t + 1/2a t^2
     def handle_run(self,frame_time):
+        if self.run_frame==0:
+            self.run_sound.play()
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME_RUN*frame_time
         self.run_frame=int(self.total_frames)%6
         # self.run_frame = (self.run_frame + 1) % 6
@@ -483,6 +521,18 @@ class Character_upside:
         self.state=self.RUN
         self.hp = received_hp
         self.total_frames=0.0
+        if Character_upside.run_sound==None:
+            Character_upside.run_sound = load_wav('resource//sound//etc_character_run.wav')
+            Character_upside.run_sound.set_volume(64)
+        if Character_upside.jump_sound==None:
+            Character_upside.jump_sound = load_wav('resource//sound//etc_character_jump.wav')
+            Character_upside.jump_sound.set_volume(64)
+        if Character_upside.attack_sound==None:
+            Character_upside.attack_sound = load_wav('resource//sound//etc_character_attack.wav')
+            Character_upside.attack_sound.set_volume(64)
+        if Character_upside.hp_sound==None:
+            Character_upside.hp_sound = load_wav('resource//sound//etc_character_hp.wav')
+            Character_upside.hp_sound.set_volume(64)
 
     def draw(self):
         if self.state==self.RUN:
@@ -525,8 +575,14 @@ class Character_downside:
     FRAMES_PER_ACTION_RUN = 6
     FRAMES_PER_ACTION_JUMP = 7
     FRAMES_PER_ACTION_ATTACK = 6
-    #s=v0t + 1/2a t^2
+
+    run_sound=None
+    jump_sound=None
+    attack_sound=None
+
     def handle_run(self,frame_time):
+        if self.run_frame==0:
+            self.run_sound.play()
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME_RUN*frame_time
         self.run_frame=int(self.total_frames)%6
         # self.run_frame = (self.run_frame + 1) % 6
@@ -574,6 +630,15 @@ class Character_downside:
         self.keycheckup,self.keycheckdown,self.keycheckleft,self.keycheckright=(False,False,False,False)
         self.state=self.RUN
         self.total_frames=0.0
+        if Character_downside.run_sound==None:
+            Character_downside.run_sound = load_wav('resource//sound//etc_character_run.wav')
+            Character_downside.run_sound.set_volume(64)
+        if Character_downside.jump_sound==None:
+            Character_downside.jump_sound = load_wav('resource//sound//etc_character_jump.wav')
+            Character_downside.jump_sound.set_volume(64)
+        if Character_downside.attack_sound==None:
+            Character_downside.attack_sound = load_wav('resource//sound//etc_character_attack.wav')
+            Character_downside.attack_sound.set_volume(64)
 
     def draw(self):
         if self.state==self.RUN:
