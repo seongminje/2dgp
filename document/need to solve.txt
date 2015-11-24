@@ -3,3 +3,27 @@
 2. 3탄
 3. 끝화면
 4. 점수계산
+
+
+if 남은 hp==0
+  mission failed.. (사운드)
+
+M  *  10 =   crush=False && mouse.x<0 count++
+W  *  10 =   remove count++
+I  *  20 =   remove count++
+hp * 100 = 
+------------
+          000 
+
+else
+  mission clear.. (사운드)
+
+M  *  10 =
+W  *  10 =
+I  *  20 =
+hp * 100 = 
+------------
+          000
+
+press aaa button to return title
+   or button
