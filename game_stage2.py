@@ -20,7 +20,11 @@ monster_downside_ironboarset=None
 current_time= get_time()
 cheat_fastframe = False
 stage2_bgm=None
+game_pause=None
 cheat_etc= None
+time_pause=0.0
+time_resume=0.0
+time_return=0.0
 
 def create_upside_monster_ironboarset():
     monster_upside_ironboar_data_file= open('resource\\jsons\\stage2_upside_monster_ironboar_data.txt','r')
@@ -101,7 +105,7 @@ def create_downside_monster_wildboarset():
     return monster_downside_wildboarset
 
 def enter():
-    global main_character,main_character2,tile,stage1bg,current_time,minimap,stage2_bgm,cheat_etc
+    global main_character,main_character2,tile,stage1bg,current_time,minimap,stage2_bgm,cheat_etc,game_pause
     global monster_upside_mouseset,monster_upside_wildboarset,monster_upside_ironboarset
     global monster_downside_mouseset,monster_downside_wildboarset,monster_downside_ironboarset
     main_character=Character_upside()
@@ -123,6 +127,7 @@ def enter():
     cheat_etc=load_wav('resource//sound//etc_cheat.wav')
     cheat_etc.set_volume(0)
     cheat_etc.repeat_play()
+    game_pause=Pause()
 
 def exit():
     global main_character,main_character2,tile,stage1bg,minimap,stage2_bgm,cheat_etc
@@ -149,7 +154,7 @@ def resume():
     pass
 
 def handle_events():
-    global main_character,main_character2,cheat_fastframe,cheat_etc
+    global main_character,main_character2,cheat_fastframe,cheat_etc,time_pause,time_resume,time_return
     events=get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -212,123 +217,133 @@ def handle_events():
         if event.type == SDL_KEYDOWN and event.key == SDLK_0:
             cheat_fastframe=True
             cheat_etc.set_volume(32)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_p:
+            if game_pause.pressed == False:
+                game_pause.pressed = True
+                time_pause=get_time()
+            else:
+                game_pause.pressed = False
+                time_resume=get_time()
+                time_return+=time_resume-time_pause
         elif event.type == SDL_KEYUP and event.key == SDLK_0:
             cheat_fastframe=False
             cheat_etc.set_volume(0)
 
 def update():
-    global main_character,main_character2,current_time,frame_time,cheat_fastframe
-    global monster_upside_mouseset,monster_upside_wildboarset,monster_upside_ironboarset
-    global downside_mouseset,monster_downside_wildboarset,monster_downside_ironboarset
-    frame_time = get_time() - current_time
-    current_time +=frame_time
+    if game_pause.pressed == False:
+        global main_character,main_character2,current_time,frame_time,cheat_fastframe
+        global monster_upside_mouseset,monster_upside_wildboarset,monster_upside_ironboarset
+        global downside_mouseset,monster_downside_wildboarset,monster_downside_ironboarset
+        frame_time = get_time() - current_time-time_return
+        current_time +=frame_time
 
-    if cheat_fastframe == False:
-        main_character.update(frame_time)
-        main_character2.update(frame_time)
-        tile.update(frame_time)
-        stage1bg.update(frame_time)
-        for monster_mouse in monster_upside_mouseset:
-           monster_mouse.update(frame_time)
-        for monster_wildboar in monster_upside_wildboarset:
-            monster_wildboar.update(frame_time)
-        for monster_ironboar in monster_upside_ironboarset:
-            monster_ironboar.update(frame_time)
-        for monster_mouse in monster_downside_mouseset:
-            monster_mouse.update(frame_time)
-        for monster_wildboar in monster_downside_wildboarset:
-            monster_wildboar.update(frame_time)
-        for monster_ironboar in monster_downside_ironboarset:
-            monster_ironboar.update(frame_time)
-        for monster_mouse in monster_upside_mouseset:
-            if collide_body(main_character,monster_mouse) and monster_mouse.crush==False:
-                main_character.hp-=1
-                main_character.hp_sound.play()
-                monster_mouse.crush=True
-        for monster_wildboar in monster_upside_wildboarset:
-            if monster_wildboar.return_death_frame()>=3:
-                monster_upside_wildboarset.remove(monster_wildboar)
-            if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_wildboar) and monster_wildboar.state==monster_wildboar.RUN:
-                monster_wildboar.state=monster_wildboar.HIT
-                monster_wildboar.death_sound.play()
-                monster_wildboar.total_frames=0.0
-                monster_wildboar.crush=True
-            elif collide_body(main_character,monster_wildboar) and monster_wildboar.crush==False:
-                main_character.hp-=1
-                main_character.hp_sound.play()
-                monster_wildboar.crush=True
-        for monster_ironboar in monster_upside_ironboarset:
-            if monster_ironboar.return_death_frame()>=3:
-                    monster_upside_ironboarset.remove(monster_ironboar)
-            if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_ironboar) and monster_ironboar.state==monster_ironboar.RUN:
-                    monster_ironboar.state=monster_ironboar.HIT
-                    monster_ironboar.hit_sound.play()
-                    monster_ironboar.total_frames=0.0
-                    monster_ironboar.hp-=1
-            elif collide_body(main_character,monster_ironboar) and monster_ironboar.hp>0 and monster_ironboar.crush==False:
+        if cheat_fastframe == False:
+            main_character.update(frame_time)
+            main_character2.update(frame_time)
+            tile.update(frame_time)
+            stage1bg.update(frame_time)
+            for monster_mouse in monster_upside_mouseset:
+               monster_mouse.update(frame_time)
+            for monster_wildboar in monster_upside_wildboarset:
+                monster_wildboar.update(frame_time)
+            for monster_ironboar in monster_upside_ironboarset:
+                monster_ironboar.update(frame_time)
+            for monster_mouse in monster_downside_mouseset:
+                monster_mouse.update(frame_time)
+            for monster_wildboar in monster_downside_wildboarset:
+                monster_wildboar.update(frame_time)
+            for monster_ironboar in monster_downside_ironboarset:
+                monster_ironboar.update(frame_time)
+            for monster_mouse in monster_upside_mouseset:
+                if collide_body(main_character,monster_mouse) and monster_mouse.crush==False:
                     main_character.hp-=1
                     main_character.hp_sound.play()
-                    monster_ironboar.crush=True
-
-        for monster_mouse in monster_downside_mouseset:
-            if collide_body(main_character2,monster_mouse) and monster_mouse.crush==False:
-                main_character.hp-=1
-                main_character.hp_sound.play()
-                monster_mouse.crush=True
-        for monster_wildboar in monster_downside_wildboarset:
-            if monster_wildboar.return_death_frame()>=3:
-                monster_downside_wildboarset.remove(monster_wildboar)
-            if main_character2.state==main_character2.ATTACK and collide_weapon(main_character2,monster_wildboar) and monster_wildboar.state==monster_wildboar.RUN:
-                monster_wildboar.state=monster_wildboar.HIT
-                monster_wildboar.death_sound.play()
-                monster_wildboar.total_frames=0.0
-                monster_wildboar.crush=True
-            elif collide_body(main_character2,monster_wildboar) and monster_wildboar.crush==False:
-                main_character.hp-=1
-                main_character.hp_sound.play()
-                monster_wildboar.crush=True
-        for monster_ironboar in monster_downside_ironboarset:
-            if monster_ironboar.return_death_frame()>=3:
-                    monster_downside_ironboarset.remove(monster_ironboar)
-            if main_character2.state==main_character2.ATTACK and collide_weapon(main_character2,monster_ironboar) and monster_ironboar.state==monster_ironboar.RUN:
-                    monster_ironboar.state=monster_ironboar.HIT
-                    monster_ironboar.hit_sound.play()
-                    monster_ironboar.total_frames=0.0
-                    monster_ironboar.hp-=1
-            elif collide_body(main_character2,monster_ironboar) and monster_ironboar.hp>0 and monster_ironboar.crush==False:
+                    monster_mouse.crush=True
+            for monster_wildboar in monster_upside_wildboarset:
+                if monster_wildboar.return_death_frame()>=3:
+                    monster_upside_wildboarset.remove(monster_wildboar)
+                if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_wildboar) and monster_wildboar.state==monster_wildboar.RUN:
+                    monster_wildboar.state=monster_wildboar.HIT
+                    monster_wildboar.death_sound.play()
+                    monster_wildboar.total_frames=0.0
+                    monster_wildboar.crush=True
+                elif collide_body(main_character,monster_wildboar) and monster_wildboar.crush==False:
                     main_character.hp-=1
-                    monster_ironboar.crush=True
-    else :
-        main_character.update(frame_time*10)
-        main_character2.update(frame_time*10)
-        tile.update(frame_time*10)
-        stage1bg.update(frame_time*10)
-        for monster_mouse in monster_upside_mouseset:
-           monster_mouse.update(frame_time*10)
-        for monster_wildboar in monster_upside_wildboarset:
-            monster_wildboar.update(frame_time*10)
-        for monster_ironboar in monster_upside_ironboarset:
-            monster_ironboar.update(frame_time*10)
-        for monster_mouse in monster_downside_mouseset:
-            monster_mouse.update(frame_time*10)
-        for monster_wildboar in monster_downside_wildboarset:
-            monster_wildboar.update(frame_time*10)
-        for monster_ironboar in monster_downside_ironboarset:
-            monster_ironboar.update(frame_time*10)
+                    main_character.hp_sound.play()
+                    monster_wildboar.crush=True
+            for monster_ironboar in monster_upside_ironboarset:
+                if monster_ironboar.return_death_frame()>=3:
+                        monster_upside_ironboarset.remove(monster_ironboar)
+                if main_character.state==main_character.ATTACK and collide_weapon(main_character,monster_ironboar) and monster_ironboar.state==monster_ironboar.RUN:
+                        monster_ironboar.state=monster_ironboar.HIT
+                        monster_ironboar.hit_sound.play()
+                        monster_ironboar.total_frames=0.0
+                        monster_ironboar.hp-=1
+                elif collide_body(main_character,monster_ironboar) and monster_ironboar.hp>0 and monster_ironboar.crush==False:
+                        main_character.hp-=1
+                        main_character.hp_sound.play()
+                        monster_ironboar.crush=True
+
+            for monster_mouse in monster_downside_mouseset:
+                if collide_body(main_character2,monster_mouse) and monster_mouse.crush==False:
+                    main_character.hp-=1
+                    main_character.hp_sound.play()
+                    monster_mouse.crush=True
+            for monster_wildboar in monster_downside_wildboarset:
+                if monster_wildboar.return_death_frame()>=3:
+                    monster_downside_wildboarset.remove(monster_wildboar)
+                if main_character2.state==main_character2.ATTACK and collide_weapon(main_character2,monster_wildboar) and monster_wildboar.state==monster_wildboar.RUN:
+                    monster_wildboar.state=monster_wildboar.HIT
+                    monster_wildboar.death_sound.play()
+                    monster_wildboar.total_frames=0.0
+                    monster_wildboar.crush=True
+                elif collide_body(main_character2,monster_wildboar) and monster_wildboar.crush==False:
+                    main_character.hp-=1
+                    main_character.hp_sound.play()
+                    monster_wildboar.crush=True
+            for monster_ironboar in monster_downside_ironboarset:
+                if monster_ironboar.return_death_frame()>=3:
+                        monster_downside_ironboarset.remove(monster_ironboar)
+                if main_character2.state==main_character2.ATTACK and collide_weapon(main_character2,monster_ironboar) and monster_ironboar.state==monster_ironboar.RUN:
+                        monster_ironboar.state=monster_ironboar.HIT
+                        monster_ironboar.hit_sound.play()
+                        monster_ironboar.total_frames=0.0
+                        monster_ironboar.hp-=1
+                elif collide_body(main_character2,monster_ironboar) and monster_ironboar.hp>0 and monster_ironboar.crush==False:
+                        main_character.hp-=1
+                        monster_ironboar.crush=True
+        else :
+            main_character.update(frame_time*10)
+            main_character2.update(frame_time*10)
+            tile.update(frame_time*10)
+            stage1bg.update(frame_time*10)
+            for monster_mouse in monster_upside_mouseset:
+               monster_mouse.update(frame_time*10)
+            for monster_wildboar in monster_upside_wildboarset:
+                monster_wildboar.update(frame_time*10)
+            for monster_ironboar in monster_upside_ironboarset:
+                monster_ironboar.update(frame_time*10)
+            for monster_mouse in monster_downside_mouseset:
+                monster_mouse.update(frame_time*10)
+            for monster_wildboar in monster_downside_wildboarset:
+                monster_wildboar.update(frame_time*10)
+            for monster_ironboar in monster_downside_ironboarset:
+                monster_ironboar.update(frame_time*10)
 
 
-    if tile.minimap_scroll>17500 :
-        game_framework.change_state(game_title)
-    elif(main_character.hp==0):
-        game_framework.change_state(game_title)
+        if tile.minimap_scroll>17500 :
+            game_framework.change_state(game_title)
+        elif(main_character.hp==0):
+            game_framework.change_state(game_title)
 
-    delay(0.03)
+        delay(0.03)
 
 def draw():
     clear_canvas()
     stage1bg.draw()
     tile.draw()
     minimap.draw()
+    game_pause.draw()
     main_character.draw_minimap_character(tile)
     for monster_mouse in monster_upside_mouseset:
         monster_mouse.draw()

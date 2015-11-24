@@ -5,6 +5,7 @@ import game_framework
 import game_title
 import game_stage2
 import stage2_class
+# import game_pause
 from stage1_class import *
 
 stage1bg = None
@@ -15,9 +16,14 @@ monster_mouseset = None
 monster_wildboarset = None
 current_time= get_time()
 cheat_fastframe = False
-game_pause=None
 stage1_bgm=None
 cheat_etc= None
+game_pause=None
+# font=None
+time_pause=0.0
+time_resume=0.0
+time_return=0.0
+
 
 def create_monster_mouseset():
     monster_mouse_data_file= open('resource\\jsons\\stage1_monster_mouse_data.txt','r')
@@ -46,7 +52,7 @@ def create_monster_wildboarset():
     return monster_wildboarset
 
 def enter():
-    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,current_time,minimap,stage1_bgm,cheat_etc,game_pause
+    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,current_time,minimap,stage1_bgm,cheat_etc,game_pause#,font
     main_character=Character()
     tile=Tile()
     minimap=Minimap()
@@ -61,9 +67,10 @@ def enter():
     cheat_etc.set_volume(0)
     cheat_etc.repeat_play()
     game_pause=Pause()
+    # font=Font('resource//하얀분필B.ttf',20)
 
 def exit():
-    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,minimap,stage1_bgm,cheat_etc,game_pause
+    global main_character,tile,stage1bg,monster_mouseset,monster_wildboarset,minimap,stage1_bgm,cheat_etc,game_pause#,font
     del(main_character)
     del(tile)
     del(minimap)
@@ -73,6 +80,7 @@ def exit():
     del(stage1_bgm)
     del(cheat_etc)
     del(game_pause)
+    # del(font)
 
 def pause():
     pass
@@ -81,7 +89,7 @@ def resume():
     pass
 
 def handle_events():
-    global main_character,cheat_fastframe,cheat_etc,game_pause
+    global main_character,cheat_fastframe,cheat_etc,game_pause,time_pause,time_resume,time_return
     events=get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -120,10 +128,13 @@ def handle_events():
             cheat_fastframe=True
             cheat_etc.set_volume(32)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_p:
-            if game_pause.pressed==False:
-                game_pause.pressed=True
+            if game_pause.pressed == False:
+                game_pause.pressed = True
+                time_pause=get_time()
             else:
-                game_pause.pressed=False
+                game_pause.pressed = False
+                time_resume=get_time()
+                time_return+=time_resume-time_pause
         elif event.type == SDL_KEYUP and event.key == SDLK_0:
             cheat_fastframe=False
             cheat_etc.set_volume(0)
@@ -131,7 +142,7 @@ def handle_events():
 def update():
     if game_pause.pressed == False:
         global main_character,monster_mouseset,monster_wildboarset,current_time,frame_time,cheat_fastframe
-        frame_time = get_time() - current_time
+        frame_time = get_time() - current_time-time_return
         current_time +=frame_time
         if cheat_fastframe == False:
             main_character.update(frame_time)
@@ -191,6 +202,7 @@ def draw():
     main_character.draw_bb_body()
     if(main_character.state==main_character.ATTACK):
         main_character.draw_bb_weapon()
+    # font.draw(800,450,str(main_character.y),(128,25,0))
     update_canvas()
 
 def collide_body(a, b):

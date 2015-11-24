@@ -6,6 +6,17 @@ from game_stage2 import *
 import game_stage1
 received_hp = 0
 
+
+class Pause:
+    image=None
+    def __init__(self):
+        if Pause.image == None:
+            Pause.image = load_image('resource\\pause.png')
+        self.pressed=False
+    def draw(self):
+        if self.pressed == True:
+            self.image.clip_draw_to_origin(0,0,1366,350,300,300,1000,300)
+
 class Minimap:
     image=None
     def __init__(self):
