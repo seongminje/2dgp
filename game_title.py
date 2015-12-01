@@ -3,7 +3,7 @@ from pico2d import *
 import game_framework
 import game_stage1
 
-
+etc_mouseon=None
 titlebg = None
 firstsubject = None
 middlesubject = None
@@ -22,12 +22,14 @@ starty,helpy,exity=900,900,900
 mousex,mousey=None,None
 title_time = 0.0
 title_bgm=None
-etc_mouseon=None
+
 
 
 def enter():
     global title_bgm,etc_mouseon
     global titlebg,firstsubject,middlesubject,lastsubject,basicstart,shadowstart,basichelp,shadowhelp,basicexit,shadowexit,explain
+    etc_mouseon=load_wav('resource//sound//etc_mouseon.wav')
+    title_bgm=load_music('resource//sound//bgm_title.ogg')
     titlebg = load_image('resource//titlebg.png')
     firstsubject = load_image('resource//name1.png')
     middlesubject = load_image('resource//name2.png')
@@ -39,8 +41,8 @@ def enter():
     basicexit=load_image('resource//exit1.png')
     shadowexit=load_image('resource//exit2.png')
     explain=load_image('resource//explain.png')
-    title_bgm=load_music('resource//sound//bgm_title.ogg')
-    etc_mouseon=load_wav('resource//sound//etc_mouseon.wav')
+
+
     title_bgm.set_volume(56)
     title_bgm.repeat_play()
     etc_mouseon.set_volume(32)

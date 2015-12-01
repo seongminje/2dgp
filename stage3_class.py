@@ -5,9 +5,7 @@ from pico2d import *
 from game_stage2 import *
 import game_stage1
 received_hp = 0
-received_death_mouse=0
-received_death_wildboar=0
-received_death_ironboar=0
+
 
 class Pause:
     image=None
@@ -676,10 +674,7 @@ class Character_downside:
         if(self.state==self.ATTACK):
             return self.x+70 , self.y-15 , self.x+140 , self.y+55
 
-def get_imformation(stage1_hp,stage1_death_mouse,stage1_death_wildboar,stage1_death_ironboar):
-    global received_hp,received_death_mouse,received_death_wildboar,received_death_ironboar
-    received_hp = stage1_hp
-    received_death_mouse=stage1_death_mouse
-    received_death_wildboar=stage1_death_wildboar
-    received_death_ironboar=stage1_death_ironboar
+def get_hp(stage2_hp):
+    global received_hp
+    received_hp = stage2_hp
     pass

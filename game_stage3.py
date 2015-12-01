@@ -1,11 +1,8 @@
-__author__ = 'Administrator'
 import random
 import json
 from pico2d import *
 import game_framework
 import game_title
-import stage3_class
-import game_stage3
 from stage2_class import *
 
 stage1bg = None
@@ -27,10 +24,6 @@ cheat_etc= None
 time_pause=0.0
 time_resume=0.0
 time_return=0.0
-death_mouse_count=0
-death_wildboar_count=0
-death_ironboar_count=0
-
 
 def create_upside_monster_ironboarset():
     monster_upside_ironboar_data_file= open('resource\\jsons\\stage2_upside_monster_ironboar_data.txt','r')
@@ -114,15 +107,11 @@ def enter():
     global main_character,main_character2,tile,stage1bg,current_time,minimap,stage2_bgm,cheat_etc,game_pause
     global monster_upside_mouseset,monster_upside_wildboarset,monster_upside_ironboarset
     global monster_downside_mouseset,monster_downside_wildboarset,monster_downside_ironboarset
-    global death_mouse_count,death_wildboar_count,death_ironboar_count
     main_character=Character_upside()
     main_character2=Character_downside()
     tile=Tile()
     minimap=Minimap()
     stage1bg=Background()
-    death_mouse_count=received_death_mouse
-    death_wildboar_count=received_death_wildboar
-    death_ironboar_count=received_death_ironboar
     monster_upside_mouseset = create_upside_monster_mouseset()
     monster_upside_wildboarset = create_upside_monster_wildboarset()
     monster_upside_ironboarset = create_upside_monster_ironboarset()
@@ -344,8 +333,7 @@ def update():
 
 
         if tile.minimap_scroll>17500 :
-            stage3_class.get_hp(int(main_character.hp))
-            game_framework.change_state(game_stage3)
+            game_framework.change_state(game_title)
         elif(main_character.hp==0):
             game_framework.change_state(game_title)
 
@@ -385,7 +373,6 @@ def draw():
         main_character.draw_bb_weapon()
     if(main_character2.state==main_character2.ATTACK):
         main_character2.draw_bb_weapon()
-    debug_print('%d,%d,%d,%d' %(main_character.hp,death_mouse_count,death_wildboar_count,death_ironboar_count))
     update_canvas()
 
 def collide_body(a, b):
