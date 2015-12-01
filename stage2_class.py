@@ -5,9 +5,9 @@ from pico2d import *
 from game_stage2 import *
 import game_stage1
 received_hp = 0
-received_death_mouse=0
-received_death_wildboar=0
-received_death_ironboar=0
+received_kill_mouse=0
+received_kill_wildboar=0
+received_kill_ironboar=0
 
 class Pause:
     image=None
@@ -523,7 +523,7 @@ class Character_upside:
         self.handle_state[self.state](self,frame_time)  # if가 없어짐 -> 처리속도,수정이 빠름
 
     def __init__(self):
-        global re_hp
+        global received_hp,received_kill_mouse,received_kill_wildboar,received_kill_ironboar
         self.x, self.y = 160, 460
         self.run_frame,self.jump_frame,self.attack_frame = (0,0,0)
         self.run = load_image('resource\\character1run.png')
@@ -533,6 +533,9 @@ class Character_upside:
         self.keycheckup,self.keycheckdown,self.keycheckleft,self.keycheckright=(False,False,False,False)
         self.state=self.RUN
         self.hp = received_hp
+        self.kill_mouse_count=received_kill_mouse
+        self.kill_wildboar_count=received_kill_wildboar
+        self.kill_ironboar_count=received_kill_ironboar
         self.total_frames=0.0
         if Character_upside.run_sound==None:
             Character_upside.run_sound = load_wav('resource//sound//etc_character_run.wav')
@@ -677,9 +680,8 @@ class Character_downside:
             return self.x+70 , self.y-15 , self.x+140 , self.y+55
 
 def get_imformation(stage1_hp,stage1_death_mouse,stage1_death_wildboar,stage1_death_ironboar):
-    global received_hp,received_death_mouse,received_death_wildboar,received_death_ironboar
+    global received_hp,received_kill_mouse,received_kill_wildboar,received_kill_ironboar
     received_hp = stage1_hp
-    received_death_mouse=stage1_death_mouse
-    received_death_wildboar=stage1_death_wildboar
-    received_death_ironboar=stage1_death_ironboar
-    pass
+    received_kill_mouse=stage1_death_mouse
+    received_kill_wildboar=stage1_death_wildboar
+    received_kill_ironboar=stage1_death_ironboar

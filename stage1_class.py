@@ -242,6 +242,9 @@ class Character:
         self.keycheckup,self.keycheckdown,self.keycheckleft,self.keycheckright=(False,False,False,False)
         self.state=self.RUN
         self.hp=15
+        self.kill_mouse_count=0
+        self.kill_wildboar_count=0
+        self.kill_ironboar_count=0
         self.total_frames=0.0
         if Character.run_sound==None:
             Character.run_sound = load_wav('resource//sound//etc_character_run.wav')

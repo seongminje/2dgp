@@ -20,10 +20,6 @@ stage1_bgm=None
 cheat_etc= None
 game_pause=None
 # font=None
-death_mouse_count=0
-death_wildboar_count=0
-death_ironboar_count=0
-
 time_pause=0.0
 time_resume=0.0
 time_return=0.0
@@ -148,7 +144,6 @@ def handle_events():
 def update():
     if game_pause.pressed == False:
         global main_character,monster_mouseset,monster_wildboarset,current_time,frame_time,cheat_fastframe
-        global death_mouse_count,death_wildboar_count,death_ironboar_count
         frame_time = get_time() - current_time-time_return
         current_time +=frame_time
         if cheat_fastframe == False:
@@ -166,7 +161,7 @@ def update():
                     monster_mouse.crush=True
                 elif monster_mouse.x<-100 and monster_mouse.crush==False:
                     monster_mouse.crush=True
-                    death_mouse_count+=1
+                    main_character.kill_mouse_count+=1
             for monster_wildboar in monster_wildboarset:
                 if monster_wildboar.return_death_frame()>=3:
                     monster_wildboarset.remove(monster_wildboar)
@@ -175,7 +170,7 @@ def update():
                     monster_wildboar.death_sound.play()
                     monster_wildboar.total_frames=0.0
                     monster_wildboar.crush=True
-                    death_wildboar_count+=1
+                    main_character.kill_wildboar_count+=1
                 elif collide_body(main_character,monster_wildboar) and monster_wildboar.crush==False:
                     main_character.hp-=1
                     main_character.hp_sound.play()
@@ -191,7 +186,7 @@ def update():
                 monster_wildboar.update(frame_time*10)
 
         if tile.minimap_scroll>17500:
-            stage2_class.get_imformation(main_character.hp,death_mouse_count,death_wildboar_count,death_ironboar_count)
+            stage2_class.get_imformation(main_character.hp,main_character.kill_mouse_count,main_character.kill_wildboar_count,main_character.kill_ironboar_count)
             game_framework.change_state(game_stage2)
         elif main_character.hp==0:
             game_framework.change_state(game_title)
@@ -216,7 +211,7 @@ def draw():
     if(main_character.state==main_character.ATTACK):
         main_character.draw_bb_weapon()
     # font.draw(800,450,str(main_character.y),(128,25,0))
-    debug_print('%d,%d,%d,%d' %(main_character.hp,death_mouse_count,death_wildboar_count,death_ironboar_count))
+    debug_print('%d,%d,%d,%d' %(main_character.hp,main_character.kill_mouse_count,main_character.kill_wildboar_count,main_character.kill_ironboar_count))
     update_canvas()
 
 def collide_body(a, b):
