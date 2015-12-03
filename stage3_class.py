@@ -23,9 +23,9 @@ class Minimap:
     image=None
     def __init__(self):
         if Minimap.image == None:
-            Minimap.image = load_image('resource\\stage2_minimap.png')
+            Minimap.image = load_image('resource\\stage3_minimap.png')
     def draw(self):
-        self.image.clip_draw_to_origin(0,0,1000,60,300,700,1030,60)
+        self.image.clip_draw_to_origin(0,0,1000,60,300,400,1030,60)
 
 class Background:
     image=None
@@ -56,11 +56,14 @@ class Tile:
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
     minimap_scroll=0.0
     def __init__(self):
-        self.image = load_image('resource\\tileblock_stage2.png')
+        self.image = load_image('resource\\tileblock_stage3.png')
         self.slide=0
     def draw(self):
-        self.image.clip_draw_to_origin(self.slide,0,1600,100,0,300,1600-self.slide,100)
-        self.image.clip_draw_to_origin(0,0,self.slide,100,1600-self.slide,300,self.slide,100)
+        self.image.clip_composite_draw(self.slide,0,1600,100,0,'v',0,800,1600-self.slide,100)
+        self.image.clip_composite_draw(0,0,self.slide,100,0,'v',1600-self.slide,800,self.slide,100)
+
+        self.image.clip_draw_to_origin(self.slide,0,1600,100,0,0,1600-self.slide,100)
+        self.image.clip_draw_to_origin(0,0,self.slide,100,1600-self.slide,0,self.slide,100)
     def update(self,frame_time):
         distance=self.RUN_SPEED_PPS*frame_time
         self.slide+=int(distance)
@@ -504,7 +507,7 @@ class Character_upside:
         if self.jump_frame>=7 :
             self.state=self.RUN
             self.run_frame=0
-            self.y=460
+            self.y=160
 
     def handle_attack(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_ATTACK*self.ACTION_PER_TIME_ATTACK*frame_time
@@ -524,15 +527,16 @@ class Character_upside:
 
     def __init__(self):
         global received_hp,received_kill_mouse,received_kill_wildboar,received_kill_ironboar
-        self.x, self.y = 160, 460
+        self.x, self.y = 160, 160
         self.run_frame,self.jump_frame,self.attack_frame = (0,0,0)
-        self.run = load_image('resource\\character1run.png')
-        self.jump = load_image('resource\\character1jump.png')
-        self.attack = load_image('resource\\character1attack.png')
+        self.run = load_image('resource\\stage3_character2run.png')
+        self.jump = load_image('resource\\stage3_character2jump.png')
+        self.attack = load_image('resource\\stage3_character2attack.png')
         self.hpbar=load_image('resource\\hpbar.png')
         self.keycheckup,self.keycheckdown,self.keycheckleft,self.keycheckright=(False,False,False,False)
         self.state=self.RUN
         self.hp = received_hp
+        # self.hp=20
         self.kill_mouse_count=received_kill_mouse
         self.kill_wildboar_count=received_kill_wildboar
         self.kill_ironboar_count=received_kill_ironboar
@@ -552,14 +556,17 @@ class Character_upside:
 
     def draw(self):
         if self.state==self.RUN:
+            # self.run.clip_composite_draw(self.run_frame*160, 0, 160, 135, 0,'v',self.x, self.y,160,135)
             self.run.clip_draw(self.run_frame*160, 0, 160, 135, self.x, self.y)
         elif self.state==self.JUMP:
             self.jump.clip_draw(self.jump_frame*130, 0, 130, 165, self.x, self.y+10)
+            # self.jump.clip_composite_draw(self.jump_frame*130, 0, 130, 165,0, 'v',self.x, self.y+10,130,165)
         elif self.state==self.ATTACK:
             self.attack.clip_draw(self.attack_frame*220, 0, 220, 170, self.x+20, self.y+20)
-        self.hpbar.clip_draw_to_origin(0,0,self.hp*27,15,50,850,self.hp*27,15)
-    def draw_minimap_character(self,tile):
-        self.run.clip_draw_to_origin(int(self.total_frames%6)*160, 0, 160, 135,300+tile.minimap_scroll/17.5,717, 40, 40)
+            # self.attack.clip_composite_draw(self.attack_frame*220, 0, 220, 170,0, 'v' ,self.x+20, self.y+20,220,170)
+        self.hpbar.clip_draw_to_origin(0,0,self.hp*27,15,50,500,self.hp*27,15)
+    # def draw_minimap_character(self,tile):
+    #     self.run.clip_draw_to_origin(int(self.total_frames%6)*160, 0, 160, 135,300+tile.minimap_scroll/17.5,717, 40, 40)
     def draw_bb_body(self):
         draw_rectangle(*self.get_bb_body())
     def draw_bb_weapon(self):
@@ -619,7 +626,7 @@ class Character_downside:
         if self.jump_frame>=7 :
             self.state=self.RUN
             self.run_frame=0
-            self.y=230
+            self.y=730
 
     def handle_attack(self,frame_time):
         self.total_frames+=self.FRAMES_PER_ACTION_ATTACK*self.ACTION_PER_TIME_ATTACK*frame_time
@@ -638,11 +645,11 @@ class Character_downside:
         self.handle_state[self.state](self,frame_time)  # if가 없어짐 -> 처리속도,수정이 빠름
 
     def __init__(self):
-        self.x, self.y = 160, 230
+        self.x, self.y = 160, 730
         self.run_frame,self.jump_frame,self.attack_frame = (0,0,0)
-        self.run = load_image('resource\\character2run.png')
-        self.jump = load_image('resource\\character2jump.png')
-        self.attack = load_image('resource\\character2attack.png')
+        self.run = load_image('resource\\stage3_character1run.png')
+        self.jump = load_image('resource\\stage3_character1jump.png')
+        self.attack = load_image('resource\\stage3_character1attack.png')
         self.keycheckup,self.keycheckdown,self.keycheckleft,self.keycheckright=(False,False,False,False)
         self.state=self.RUN
         self.total_frames=0.0
@@ -663,7 +670,9 @@ class Character_downside:
             self.jump.clip_draw(self.jump_frame*130, 0, 130, 165, self.x, self.y+10)
         elif self.state==self.ATTACK:
             self.attack.clip_draw(self.attack_frame*220, 0, 220, 170, self.x+20, self.y-20)
-
+    def draw_minimap_character(self,tile):
+        # self.run.clip_draw_to_origin(int(self.total_frames%6)*160, 0, 160, 135,300+tile.minimap_scroll/17.5,717, 40, 40)
+        self.run.clip_composite_draw(int(self.total_frames%6)*160, 0, 160, 135,0,'v',300+tile.minimap_scroll/17.5,417, 40, 40)
     def draw_bb_body(self):
         draw_rectangle(*self.get_bb_body())
     def draw_bb_weapon(self):

@@ -28,7 +28,7 @@ time_return=0.0
 
 
 def create_upside_monster_ironboarset():
-    monster_upside_ironboar_data_file= open('resource\\jsons\\stage2_upside_monster_ironboar_data.txt','r')
+    monster_upside_ironboar_data_file= open('resource\\jsons\\stage3_upside_monster_ironboar_data.txt','r')
     monster_upside_ironboar_data = json.load(monster_upside_ironboar_data_file)
     monster_upside_ironboar_data_file.close()
     monster_ironboarset=[]
@@ -41,7 +41,7 @@ def create_upside_monster_ironboarset():
     return monster_ironboarset
 
 def create_upside_monster_mouseset():
-    monster_upside_mouse_data_file= open('resource\\jsons\\stage2_upside_monster_mouse_data.txt','r')
+    monster_upside_mouse_data_file= open('resource\\jsons\\stage3_upside_monster_mouse_data.txt','r')
     monster_upside_mouse_data = json.load(monster_upside_mouse_data_file)
     monster_upside_mouse_data_file.close()
     monster_upside_mouseset=[]
@@ -54,7 +54,7 @@ def create_upside_monster_mouseset():
     return monster_upside_mouseset
 
 def create_upside_monster_wildboarset():
-    monster_upside_wildboar_data_file= open('resource\\jsons\\stage2_upside_monster_wildboar_data.txt','r')
+    monster_upside_wildboar_data_file= open('resource\\jsons\\stage3_upside_monster_wildboar_data.txt','r')
     monster_upside_wildboar_data = json.load(monster_upside_wildboar_data_file)
     monster_upside_wildboar_data_file.close()
     monster_upside_wildboarset=[]
@@ -67,7 +67,7 @@ def create_upside_monster_wildboarset():
     return monster_upside_wildboarset
 
 def create_downside_monster_ironboarset():
-    monster_downside_ironboar_data_file= open('resource\\jsons\\stage2_downside_monster_ironboar_data.txt','r')
+    monster_downside_ironboar_data_file= open('resource\\jsons\\stage3_downside_monster_ironboar_data.txt','r')
     monster_downside_ironboar_data = json.load(monster_downside_ironboar_data_file)
     monster_downside_ironboar_data_file.close()
     monster_downside_ironboarset=[]
@@ -80,7 +80,7 @@ def create_downside_monster_ironboarset():
     return monster_downside_ironboarset
 
 def create_downside_monster_mouseset():
-    monster_downside_mouse_data_file= open('resource\\jsons\\stage2_downside_monster_mouse_data.txt','r')
+    monster_downside_mouse_data_file= open('resource\\jsons\\stage3_downside_monster_mouse_data.txt','r')
     monster_downside_mouse_data = json.load(monster_downside_mouse_data_file)
     monster_downside_mouse_data_file.close()
     monster_downside_mouseset=[]
@@ -93,7 +93,7 @@ def create_downside_monster_mouseset():
     return monster_downside_mouseset
 
 def create_downside_monster_wildboarset():
-    monster_downside_wildboar_data_file= open('resource\\jsons\\stage2_downside_monster_wildboar_data.txt','r')
+    monster_downside_wildboar_data_file= open('resource\\jsons\\stage3_downside_monster_wildboar_data.txt','r')
     monster_downside_wildboar_data = json.load(monster_downside_wildboar_data_file)
     monster_downside_wildboar_data_file.close()
     monster_downside_wildboarset=[]
@@ -173,12 +173,12 @@ def handle_events():
                     main_character.keycheckleft = True
                 elif event.key == SDLK_RIGHT:
                     main_character.keycheckright = True
-                elif event.key == SDLK_a:
+                elif event.key == SDLK_z:
                     main_character.state=1
                     main_character.jump_frame=0
                     main_character.total_frames=0
                     main_character.jump_sound.play()
-                elif event.key == SDLK_s:
+                elif event.key == SDLK_x:
                     main_character.state=2
                     main_character.attack_frame=0
                     main_character.total_frames=0
@@ -192,12 +192,12 @@ def handle_events():
                     main_character2.keycheckleft = True
                 elif event.key == SDLK_RIGHT:
                     main_character2.keycheckright = True
-                elif event.key == SDLK_z:
+                elif event.key == SDLK_a:
                     main_character2.state=1
                     main_character2.jump_frame=0
                     main_character2.total_frames=0
                     main_character2.jump_sound.play()
-                elif event.key == SDLK_x:
+                elif event.key == SDLK_s:
                     main_character2.state=2
                     main_character2.attack_frame=0
                     main_character2.total_frames=0
@@ -359,7 +359,7 @@ def draw():
     tile.draw()
     minimap.draw()
     game_pause.draw()
-    main_character.draw_minimap_character(tile)
+    main_character2.draw_minimap_character(tile)
     for monster_mouse in monster_upside_mouseset:
         monster_mouse.draw()
         monster_mouse.draw_bb()

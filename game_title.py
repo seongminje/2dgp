@@ -26,7 +26,7 @@ title_bgm=None
 
 
 def enter():
-    global title_bgm,etc_mouseon
+    global etc_mouseon,title_bgm
     global titlebg,firstsubject,middlesubject,lastsubject,basicstart,shadowstart,basichelp,shadowhelp,basicexit,shadowexit,explain
     etc_mouseon=load_wav('resource//sound//etc_mouseon.wav')
     title_bgm=load_music('resource//sound//bgm_title.ogg')
@@ -78,17 +78,17 @@ def handle_events():
                 mousex,mousey=event.x, 900-event.y
                 if(mousex>=1260 and mousex<=1500 and mousey>=starty and mousey<=starty+80):
                     startmouseon=True
-                    etc_mouseon.play(1)
+                    etc_mouseon.play()
                 else:
                     startmouseon=False
                 if(mousex>=1320 and mousex<=1500 and mousey>=helpy and mousey<=helpy+80):
                     helpmouseon=True
-                    etc_mouseon.play(1)
+                    etc_mouseon.play()
                 else:
                     helpmouseon=False
                 if(mousex>=1320 and mousex<=1500 and mousey>=exity and mousey<=exity+80):
                     exitmouseon=True
-                    etc_mouseon.play(1)
+                    etc_mouseon.play()
                 else:
                     exitmouseon=False
             if event.type == SDL_MOUSEBUTTONDOWN and startmouseon==True:

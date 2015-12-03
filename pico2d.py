@@ -252,7 +252,7 @@ class Image:
         if w is None and h is None:
             w,h = self.w, self.h
         src_rect = SDL_Rect(left, self.h - bottom - height, width, height)
-        dst_rect = to_sdl_rect(x-w/2, y-h/2, w, h)
+        dst_rect = to_sdl_rect(x, y, w, h)
         flip_flag = SDL_FLIP_NONE
         if 'h' in flip:
             flip_flag |= SDL_FLIP_HORIZONTAL
