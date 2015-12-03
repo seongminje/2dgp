@@ -1,16 +1,16 @@
 해야할것 순서
-2. 3탄
-3. 끝화면
+2. 3탄 -> 배치,미니맵,타일
+3. 끝화면 -> 점수판 제작, 등급매기기
 4. 점수계산
 
 
 if 남은 hp==0
   mission failed.. (사운드)
 
-M  *  10 =   crush=False && mouse.x<0 count++
-W  *  10 =   remove count++
-I  *  20 =   remove count++
-hp * 100 = 
+M  *  100 =   
+W  *  100 =   
+I  *  200 =   
+hp * 1000 = 
 ------------
           000 
 

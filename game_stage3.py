@@ -3,7 +3,8 @@ import json
 from pico2d import *
 import game_framework
 import game_title
-from stage2_class import *
+
+from stage3_class import *
 
 stage1bg = None
 main_character = None
@@ -24,6 +25,7 @@ cheat_etc= None
 time_pause=0.0
 time_resume=0.0
 time_return=0.0
+
 
 def create_upside_monster_ironboarset():
     monster_upside_ironboar_data_file= open('resource\\jsons\\stage2_upside_monster_ironboar_data.txt','r')
@@ -260,6 +262,9 @@ def update():
                     main_character.hp-=1
                     main_character.hp_sound.play()
                     monster_mouse.crush=True
+                elif monster_mouse.x<-100 and monster_mouse.crush==False:
+                    monster_mouse.crush=True
+                    main_character.kill_mouse_count+=1
             for monster_wildboar in monster_upside_wildboarset:
                 if monster_wildboar.return_death_frame()>=3:
                     monster_upside_wildboarset.remove(monster_wildboar)
@@ -268,6 +273,7 @@ def update():
                     monster_wildboar.death_sound.play()
                     monster_wildboar.total_frames=0.0
                     monster_wildboar.crush=True
+                    main_character.kill_wildboar_count+=1
                 elif collide_body(main_character,monster_wildboar) and monster_wildboar.crush==False:
                     main_character.hp-=1
                     main_character.hp_sound.play()
@@ -280,6 +286,8 @@ def update():
                         monster_ironboar.hit_sound.play()
                         monster_ironboar.total_frames=0.0
                         monster_ironboar.hp-=1
+                        if monster_ironboar.hp==0:
+                            main_character.kill_ironboar_count+=1
                 elif collide_body(main_character,monster_ironboar) and monster_ironboar.hp>0 and monster_ironboar.crush==False:
                         main_character.hp-=1
                         main_character.hp_sound.play()
@@ -290,6 +298,9 @@ def update():
                     main_character.hp-=1
                     main_character.hp_sound.play()
                     monster_mouse.crush=True
+                elif monster_mouse.x<-100 and monster_mouse.crush==False:
+                    monster_mouse.crush=True
+                    main_character.kill_mouse_count+=1
             for monster_wildboar in monster_downside_wildboarset:
                 if monster_wildboar.return_death_frame()>=3:
                     monster_downside_wildboarset.remove(monster_wildboar)
@@ -298,6 +309,7 @@ def update():
                     monster_wildboar.death_sound.play()
                     monster_wildboar.total_frames=0.0
                     monster_wildboar.crush=True
+                    main_character.kill_wildboar_count+=1
                 elif collide_body(main_character2,monster_wildboar) and monster_wildboar.crush==False:
                     main_character.hp-=1
                     main_character.hp_sound.play()
@@ -310,6 +322,8 @@ def update():
                         monster_ironboar.hit_sound.play()
                         monster_ironboar.total_frames=0.0
                         monster_ironboar.hp-=1
+                        if monster_ironboar.hp==0:
+                            main_character.kill_ironboar_count+=1
                 elif collide_body(main_character2,monster_ironboar) and monster_ironboar.hp>0 and monster_ironboar.crush==False:
                         main_character.hp-=1
                         monster_ironboar.crush=True
@@ -331,8 +345,8 @@ def update():
             for monster_ironboar in monster_downside_ironboarset:
                 monster_ironboar.update(frame_time*10)
 
-
         if tile.minimap_scroll>17500 :
+            # stage3_class.get_hp(int(main_character.hp))
             game_framework.change_state(game_title)
         elif(main_character.hp==0):
             game_framework.change_state(game_title)
@@ -373,6 +387,7 @@ def draw():
         main_character.draw_bb_weapon()
     if(main_character2.state==main_character2.ATTACK):
         main_character2.draw_bb_weapon()
+    debug_print('%d,%d,%d,%d' %(main_character.hp,main_character.kill_mouse_count,main_character.kill_wildboar_count,main_character.kill_ironboar_count))
     update_canvas()
 
 def collide_body(a, b):

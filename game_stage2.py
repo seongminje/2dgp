@@ -1,4 +1,3 @@
-__author__ = 'Administrator'
 import random
 import json
 from pico2d import *
@@ -348,7 +347,7 @@ def update():
                 monster_ironboar.update(frame_time*10)
 
         if tile.minimap_scroll>17500 :
-            stage3_class.get_hp(int(main_character.hp))
+            stage3_class.get_imformation(main_character.hp,main_character.kill_mouse_count,main_character.kill_wildboar_count,main_character.kill_ironboar_count)
             game_framework.change_state(game_stage3)
         elif(main_character.hp==0):
             game_framework.change_state(game_title)
