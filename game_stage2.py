@@ -3,6 +3,7 @@ import json
 from pico2d import *
 import game_framework
 import game_title
+import game_fail
 import stage3_class
 import game_stage3
 from stage2_class import *
@@ -350,7 +351,8 @@ def update():
             stage3_class.get_imformation(main_character.hp,main_character.kill_mouse_count,main_character.kill_wildboar_count,main_character.kill_ironboar_count)
             game_framework.change_state(game_stage3)
         elif(main_character.hp==0):
-            game_framework.change_state(game_title)
+            game_fail.get_imformation(main_character.kill_mouse_count,main_character.kill_wildboar_count,main_character.kill_ironboar_count)
+            game_framework.change_state(game_fail)
 
         delay(0.03)
 
