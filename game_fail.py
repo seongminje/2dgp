@@ -6,23 +6,27 @@ import game_stage2
 import game_stage3
 import game_title
 
+fail_bgm=None
 failbg=None
 loadfont=None
 received_hp=0
 received_kill_mouse=0
 received_kill_wildboar=0
 received_kill_ironboar=0
-브금만 넣으면 됨.
 
 def enter():
-    global failbg,loadfont
+    global failbg,loadfont,fail_bgm
     failbg = load_image('resource//failboard.png')
     loadfont=load_font('resource//하얀분필B.ttf',80)
+    fail_bgm=load_music('resource//sound//bgm_failed.ogg')
 
+    fail_bgm.set_volume(56)
+    fail_bgm.repeat_play()
 def exit():
-    global failbg,loadfont
+    global failbg,loadfont,fail_bgm
     del(failbg)
     del(loadfont)
+    del(fail_bgm)
 
 def handle_events():
     events = get_events()

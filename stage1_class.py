@@ -241,7 +241,7 @@ class Character:
         self.hpbar=load_image('resource\\hpbar.png')
         self.keycheckup,self.keycheckdown,self.keycheckleft,self.keycheckright=(False,False,False,False)
         self.state=self.RUN
-        self.hp=15
+        self.hp=20
         self.kill_mouse_count=0
         self.kill_wildboar_count=0
         self.kill_ironboar_count=0

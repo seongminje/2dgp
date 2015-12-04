@@ -6,6 +6,7 @@ import game_title
 import game_fail
 import game_stage2
 import stage2_class
+
 # import game_pause
 from stage1_class import *
 
@@ -116,6 +117,7 @@ def handle_events():
                 main_character.attack_sound.play()
             elif event.key==SDLK_ESCAPE:
                 game_framework.change_state(game_title)
+                break
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_UP:
                 main_character.keycheckup = False

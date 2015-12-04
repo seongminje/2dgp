@@ -29,7 +29,7 @@ def enter():
     global etc_mouseon,title_bgm
     global titlebg,firstsubject,middlesubject,lastsubject,basicstart,shadowstart,basichelp,shadowhelp,basicexit,shadowexit,explain
     etc_mouseon=load_wav('resource//sound//etc_mouseon.wav')
-    title_bgm=load_music('resource//sound//bgm_title.ogg')
+    title_bgm=load_music('resource//sound//bgm_title2.ogg')
     titlebg = load_image('resource//titlebg.png')
     firstsubject = load_image('resource//name1.png')
     middlesubject = load_image('resource//name2.png')
