@@ -490,14 +490,14 @@ class Character_upside:
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME_RUN*frame_time
         self.run_frame=int(self.total_frames)%6
         # self.run_frame = (self.run_frame + 1) % 6
-        if self.keycheckup==True:
-            self.y+=10
-        if self.keycheckdown==True:
-            self.y-=10
-        if self.keycheckleft==True:
-            self.x-=10
-        if self.keycheckright==True:
-            self.x+=10
+        # if self.keycheckup==True:
+        #     self.y+=10
+        # if self.keycheckdown==True:
+        #     self.y-=10
+        # if self.keycheckleft==True:
+        #     self.x-=10
+        # if self.keycheckright==True:
+        #     self.x+=10
 
     def handle_jump(self,frame_time):
         self.y+=self.JUMP_SPEED_MPS-self.GRAVITY/2*(2*self.jump_frame-1)
@@ -609,14 +609,14 @@ class Character_downside:
         self.total_frames+=self.FRAMES_PER_ACTION_RUN*self.ACTION_PER_TIME_RUN*frame_time
         self.run_frame=int(self.total_frames)%6
         # self.run_frame = (self.run_frame + 1) % 6
-        if self.keycheckup==True:
-            self.y+=10
-        if self.keycheckdown==True:
-            self.y-=10
-        if self.keycheckleft==True:
-            self.x-=10
-        if self.keycheckright==True:
-            self.x+=10
+        # if self.keycheckup==True:
+        #     self.y+=10
+        # if self.keycheckdown==True:
+        #     self.y-=10
+        # if self.keycheckleft==True:
+        #     self.x-=10
+        # if self.keycheckright==True:
+        #     self.x+=10
 
     def handle_jump(self,frame_time):
         self.y-=self.JUMP_SPEED_MPS-self.GRAVITY/2*(2*self.jump_frame-1)

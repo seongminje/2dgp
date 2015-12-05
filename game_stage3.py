@@ -365,32 +365,32 @@ def draw():
     main_character2.draw_minimap_character(tile)
     for monster_mouse in monster_upside_mouseset:
         monster_mouse.draw()
-        monster_mouse.draw_bb()
+        # monster_mouse.draw_bb()
     for monster_wildboar in monster_upside_wildboarset:
         monster_wildboar.draw()
-        monster_wildboar.draw_bb()
+        # monster_wildboar.draw_bb()
     for monster_ironboar in monster_upside_ironboarset:
         monster_ironboar.draw()
-        monster_ironboar.draw_bb()
+        # monster_ironboar.draw_bb()
 
     for monster_mouse in monster_downside_mouseset:
         monster_mouse.draw()
-        monster_mouse.draw_bb()
+        # monster_mouse.draw_bb()
     for monster_wildboar in monster_downside_wildboarset:
         monster_wildboar.draw()
-        monster_wildboar.draw_bb()
+        # monster_wildboar.draw_bb()
     for monster_ironboar in monster_downside_ironboarset:
         monster_ironboar.draw()
-        monster_ironboar.draw_bb()
+        # monster_ironboar.draw_bb()
     main_character.draw()
     main_character2.draw()
-    main_character.draw_bb_body()
-    main_character2.draw_bb_body()
-    if(main_character.state==main_character.ATTACK):
-        main_character.draw_bb_weapon()
-    if(main_character2.state==main_character2.ATTACK):
-        main_character2.draw_bb_weapon()
-    debug_print('%d,%d,%d,%d' %(main_character.hp,main_character.kill_mouse_count,main_character.kill_wildboar_count,main_character.kill_ironboar_count))
+    # main_character.draw_bb_body()
+    # main_character2.draw_bb_body()
+    # if(main_character.state==main_character.ATTACK):
+    #     main_character.draw_bb_weapon()
+    # if(main_character2.state==main_character2.ATTACK):
+    #     main_character2.draw_bb_weapon()
+    # debug_print('%d,%d,%d,%d' %(main_character.hp,main_character.kill_mouse_count,main_character.kill_wildboar_count,main_character.kill_ironboar_count))
     update_canvas()
 
 def collide_body(a, b):

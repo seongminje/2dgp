@@ -206,16 +206,16 @@ def draw():
     main_character.draw_minimap_character(tile)
     for monster_mouse in monster_mouseset:
         monster_mouse.draw()
-        monster_mouse.draw_bb()
+        # monster_mouse.draw_bb()
     for monster_wildboar in monster_wildboarset:
         monster_wildboar.draw()
-        monster_wildboar.draw_bb()
+        # monster_wildboar.draw_bb()
     main_character.draw()
-    main_character.draw_bb_body()
-    if(main_character.state==main_character.ATTACK):
-        main_character.draw_bb_weapon()
+    # main_character.draw_bb_body()
+    # if(main_character.state==main_character.ATTACK):
+    #     main_character.draw_bb_weapon()
     # font.draw(800,450,str(main_character.y),(128,25,0))
-    debug_print('%d,%d,%d,%d' %(main_character.hp,main_character.kill_mouse_count,main_character.kill_wildboar_count,main_character.kill_ironboar_count))
+    # debug_print('%d,%d,%d,%d' %(main_character.hp,main_character.kill_mouse_count,main_character.kill_wildboar_count,main_character.kill_ironboar_count))
     update_canvas()
 
 def collide_body(a, b):
